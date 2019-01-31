@@ -50,14 +50,14 @@ class EnrolmentsAuthService @Inject()(val connector: AuthConnector) {
       case Some(Organisation) ~ _ =>
         val user = UserDetails("", "Organisation", None)
         Future.successful(Right(user))
-      case Some(Agent) ~ enrolments =>
-        getAgentReferenceFromEnrolments(enrolments) match {
+      case Some(Agent) ~ _ =>
+        retrieveAgentDetails() map {
           case arn@Some(_) =>
             val user: AuthOutcome = Right(UserDetails("", "Agent", arn))
-            Future.successful(user)
+            user
           case None =>
             Logger.warn(s"[EnrolmentsAuthService][authorised] No AgentReferenceNumber defined on agent enrolment.")
-            Future.successful(Left(DownstreamError))
+            Left(DownstreamError)
         }
     } recoverWith {
       case _: MissingBearerToken => Future.successful(Left(UnauthorisedError))
@@ -67,4 +67,12 @@ class EnrolmentsAuthService @Inject()(val connector: AuthConnector) {
         Future.successful(Left(DownstreamError))
     }
   }
+
+  private def retrieveAgentDetails()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] =
+    authFunction.authorised(AffinityGroup.Agent and Enrolment("HMRC-AS-AGENT"))
+      .retrieve(Retrievals.agentCode and Retrievals.authorisedEnrolments) {
+        case _ ~ enrolments =>
+          Future.successful(getAgentReferenceFromEnrolments(enrolments))
+        case _ => Future.successful(None)
+      }
 }
