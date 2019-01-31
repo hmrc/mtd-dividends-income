@@ -31,3 +31,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.12")
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
+
+addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.10")
+
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.3.4")
