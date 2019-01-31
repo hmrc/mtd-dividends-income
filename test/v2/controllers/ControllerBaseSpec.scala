@@ -17,7 +17,7 @@
 package v2.controllers
 
 import play.api.http.{HeaderNames, MimeTypes, Status}
-import play.api.mvc.AnyContentAsEmpty
+import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
 import play.api.test.{FakeRequest, ResultExtractors}
 import support.UnitSpec
 

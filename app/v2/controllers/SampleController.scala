@@ -17,14 +17,15 @@
 package v2.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import v2.services.{EnrolmentsAuthService, MtdIdLookupService}
 
 import scala.concurrent.Future
 
 @Singleton
 class SampleController @Inject()(val authService: EnrolmentsAuthService,
-                                 val lookupService: MtdIdLookupService) extends AuthorisedController {
+                                 val lookupService: MtdIdLookupService,
+                                 cc: ControllerComponents) extends AuthorisedController(cc) {
 
   def doSomething(nino: String): Action[AnyContent] = authorisedAction(nino).async { implicit request =>
     Future.successful(Ok(request.userDetails.mtdId))
