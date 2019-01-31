@@ -78,45 +78,6 @@ class EnrolmentsAuthServiceSpec extends ServiceSpec {
       }
     }
 
-    "the user is an authorised agent" should {
-      val arn = "123567890"
-      val agentEnrolments = Enrolments(
-        Set(
-          Enrolment(
-            "HMRC-AS-AGENT",
-            Seq(EnrolmentIdentifier("AgentReferenceNumber", arn)),
-            "Active"
-          )
-        )
-      )
-
-      val retrievalsResult = new ~(Some(Agent), agentEnrolments)
-
-      "return the 'Agent' user type in the user details" in new Test {
-
-        val expected = Right(UserDetails("", "Agent", Some(arn)))
-
-        MockedAuthConnector.authorised(EmptyPredicate, authRetrievals)
-          .returns(Future.successful(retrievalsResult))
-
-        private val result = await(target.authorised(EmptyPredicate))
-
-        result shouldBe expected
-      }
-
-      "return the agent's ARN in the user details" in new Test {
-
-        val expected = Right(UserDetails("", "Agent", Some(arn)))
-
-        MockedAuthConnector.authorised(EmptyPredicate, authRetrievals)
-          .returns(Future.successful(retrievalsResult))
-
-        private val result = await(target.authorised(EmptyPredicate))
-
-        result shouldBe expected
-      }
-    }
-
     "the user is an agent with missing ARN" should {
       val arn = "123567890"
       val incompleteEnrolments = Enrolments(
