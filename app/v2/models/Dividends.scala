@@ -23,18 +23,9 @@ case class Dividends(ukDividends: Option[BigDecimal], nonUkDividends: Option[Big
 
 object Dividends {
 
-  implicit val reads: Reads[Dividends] = Json.reads[Dividends]
-  implicit val writes: Writes[Dividends] = Json.writes[Dividends]
+  val reads: Reads[Dividends] = Json.reads[Dividends]
+  val  writes: Writes[Dividends] = Json.writes[Dividends]
 
-  val desReads: Reads[Dividends] = (
-    (JsPath \ "ukDividends").readNullable[BigDecimal] and
-      (JsPath \ "nonUkDividends").readNullable[BigDecimal]
-  ) (Dividends.apply _)
-
-  val desWrites: Writes[Dividends] = (
-    (JsPath \ "ukDividends").writeNullable[BigDecimal] and
-      (JsPath \ "nonUkDividends").writeNullable[BigDecimal]
-    ) (unlift(Dividends.unapply))
 }
 
 
