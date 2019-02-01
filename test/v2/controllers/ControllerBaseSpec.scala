@@ -17,9 +17,10 @@
 package v2.controllers
 
 import play.api.http.{HeaderNames, MimeTypes, Status}
-import play.api.mvc.AnyContentAsEmpty
+import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
 import play.api.test.{FakeRequest, ResultExtractors}
 import support.UnitSpec
+import play.api.test.Helpers.stubControllerComponents
 
 class ControllerBaseSpec extends UnitSpec
   with Status
@@ -28,6 +29,8 @@ class ControllerBaseSpec extends UnitSpec
   with ResultExtractors {
 
   implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  lazy val cc: ControllerComponents = stubControllerComponents()
 
   lazy val fakeGetRequest: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withHeaders(
     HeaderNames.AUTHORIZATION -> "Bearer Token"

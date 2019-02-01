@@ -16,6 +16,7 @@
 
 package v2.controllers
 
+import play.api.mvc.ControllerComponents
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.mocks.services.{MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.errors.{NinoFormatError, UnauthorisedError}
@@ -29,7 +30,8 @@ class SampleControllerSpec extends ControllerBaseSpec {
 
     lazy val target = new SampleController(
       authService = mockEnrolmentsAuthService,
-      lookupService = mockMtdIdLookupService
+      lookupService = mockMtdIdLookupService,
+      cc = cc
     )
   }
 

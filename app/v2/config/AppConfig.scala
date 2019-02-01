@@ -17,9 +17,8 @@
 package v2.config
 
 import javax.inject.{Inject, Singleton}
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 
 trait AppConfig {
   def desBaseUrl: String
@@ -32,15 +31,12 @@ trait AppConfig {
 }
 
 @Singleton
-class AppConfigImpl @Inject()(environment: Environment,
-                              config: Configuration) extends AppConfig with ServicesConfig {
+class AppConfigImpl @Inject()(config: ServicesConfig) extends AppConfig {
 
-  override protected def mode: Mode = environment.mode
 
-  override protected def runModeConfiguration: Configuration = config
+  val mtdIdBaseUrl: String = config.baseUrl("mtd-id-lookup")
+  val desBaseUrl: String = config.baseUrl("des")
+  val desEnv: String = config.getString("microservice.services.des.env")
+  val desToken: String = config.getString("microservice.services.des.token")
 
-  val mtdIdBaseUrl: String = baseUrl("mtd-id-lookup")
-  val desBaseUrl: String = baseUrl("des")
-  val desEnv: String = getString("microservice.services.des.env")
-  val desToken: String = getString("microservice.services.des.token")
 }
