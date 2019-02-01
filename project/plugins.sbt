@@ -26,11 +26,11 @@ addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "0.14.0")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "1.2.0")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.20")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.21")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 
 addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.10")
 
