@@ -20,15 +20,28 @@ import play.api.libs.json.JsValue
 import support.UnitSpec
 import v2.fixtures.Fixtures.DividendsFixture._
 import v2.models.requestData.DesTaxYear
+import v2.utils.JsonErrorValidators
 
 
 
-class DividendsSpec extends UnitSpec {
+class DividendsSpec extends UnitSpec with JsonErrorValidators{
 
   val taxYear = "2017-18"
 
 
   "reads" should {
+
+    testPropertyType[Dividends](mtdFormatJson)(
+      path = "/ukDividends",
+      replacement = "notANumber".toJson,
+      expectedError = JsonError.NUMBER_FORMAT_EXCEPTION
+    )
+
+    testPropertyType[Dividends](mtdFormatJson)(
+      path = "/nonUkDividends",
+      replacement = "notANumber".toJson,
+      expectedError = JsonError.NUMBER_FORMAT_EXCEPTION
+    )
 
     "return a Dividends model" when {
       "correct Json is supplied" in {
@@ -36,7 +49,6 @@ class DividendsSpec extends UnitSpec {
         model shouldBe dividendsModel
       }
     }
-
   }
 
   "writes" should {
@@ -52,7 +64,7 @@ class DividendsSpec extends UnitSpec {
   "DesTaxYear" should {
     "generate tax year" when {
       "given a year" in {
-        val year = DesTaxYear(taxYear).toDesTaxYear
+        val year = DesTaxYear(taxYear)
         year shouldBe "2018"
       }
     }

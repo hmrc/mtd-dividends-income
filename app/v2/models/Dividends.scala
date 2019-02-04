@@ -16,15 +16,14 @@
 
 package v2.models
 
-import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 case class Dividends(ukDividends: Option[BigDecimal], nonUkDividends: Option[BigDecimal])
 
 object Dividends {
 
-  val reads: Reads[Dividends] = Json.reads[Dividends]
-  val  writes: Writes[Dividends] = Json.writes[Dividends]
+  implicit val reads: Reads[Dividends] = Json.reads[Dividends]
+  implicit val writes: Writes[Dividends] = Json.writes[Dividends]
 
 }
 

@@ -16,7 +16,6 @@
 
 package v2.models.requestData
 
-case class DesTaxYear(taxYear: String) {
-  def toDesTaxYear: String = taxYear.take(2) + taxYear.drop(5)
-
+object DesTaxYear {
+  def apply(taxYear: String): String = taxYear.take(2) + taxYear.drop(5)
 }
