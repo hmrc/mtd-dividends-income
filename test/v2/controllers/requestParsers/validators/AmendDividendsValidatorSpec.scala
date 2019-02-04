@@ -27,7 +27,7 @@ class AmendDividendsValidatorSpec extends UnitSpec{
 
   "running validate" should {
     "return no errors" when {
-      "a valid request data is supplied" in {
+      "valid request data is supplied" in {
         val nino = "AA123456A"
         val taxYear = "2018-19"
         val expectedData = Nil

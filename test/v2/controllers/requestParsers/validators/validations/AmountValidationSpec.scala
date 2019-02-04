@@ -73,6 +73,16 @@ class AmountValidationSpec extends UnitSpec with JsonErrorValidators {
           validationResult.length shouldBe 1
           validationResult.head shouldBe error
         }
+
+        "an amount greater than 2 decimal places is supplied" in {
+
+          val greaterThanTwoDecimalPlaces = Some(BigDecimal(5000.003))
+          val validationResult = AmountValidation.validate(greaterThanTwoDecimalPlaces, error)
+          validationResult.isEmpty shouldBe false
+          validationResult.length shouldBe 1
+          validationResult.head shouldBe error
+        }
+
       }
     }
   }

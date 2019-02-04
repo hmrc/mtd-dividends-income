@@ -23,24 +23,22 @@ import v2.models.requestData.AmendDividendsRequestRawData
 
 class AmendDividendsValidator extends Validator[AmendDividendsRequestRawData]{
 
-  private val validationSet = List(levelOneValidations, levelTwoValidations, levelThreeValidations)
+  private val validationSet = List(requestUrlParamsValidations, bodyFormatValidations, bvrValidations)
 
-  //, bodyContentValidations
-
-  private def levelOneValidations: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
+  private def requestUrlParamsValidations: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
     List(
       NinoValidation.validate(data.nino),
       TaxYearValidation.validate(data.taxYear)
     )
   }
 
-  private def levelTwoValidations: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
+  private def bodyFormatValidations: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
     List(
       JsonFormatValidation.validate[Dividends](data.body)
     )
   }
 
-  private def levelThreeValidations: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
+  private def bvrValidations: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
 
     val dividends = data.body.json.as[Dividends]
 

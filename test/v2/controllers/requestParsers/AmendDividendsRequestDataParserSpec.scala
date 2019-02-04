@@ -30,9 +30,9 @@ class AmendDividendsRequestDataParserSpec extends UnitSpec{
     val target = new AmendDividendsRequestDataParser(mockAmendDividendsValidator)
   }
 
-  "Calling parser method" should {
-    "return a validated request data" when {
-      "a valid request is supplied" in new Test {
+  "Calling parse method" should {
+    "return validated request data" when {
+      "valid request is supplied" in new Test {
 
         val nino = "AA123456A"
         val taxYear = "2018-19"
@@ -62,7 +62,7 @@ class AmendDividendsRequestDataParserSpec extends UnitSpec{
       }
     }
 
-    "return an multiple errors" when {
+    "return multiple errors" when {
       "an invalid nino and tax year is supplied" in new Test {
         val nino = "AA1456A"
         val taxYear = "20189"
