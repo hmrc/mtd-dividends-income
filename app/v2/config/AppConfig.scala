@@ -40,3 +40,8 @@ class AppConfigImpl @Inject()(config: ServicesConfig) extends AppConfig {
   val desToken: String = config.getString("microservice.services.des.token")
 
 }
+
+trait FixedConfig {
+  // Minimum tax year for MTD
+  val minimumTaxYear = 2017
+}

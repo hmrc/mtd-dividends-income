@@ -16,8 +16,9 @@
 
 package v2.models.errors
 
-// Nino Errors
+// Format Errors
 object NinoFormatError extends MtdError("FORMAT_NINO", "The NINO format is invalid")
+object TaxYearFormatError extends MtdError("FORMAT_TAX_YEAR", "The provided tax year is invalid")
 
 // Date Errors
 object MissingStartDateError extends MtdError("MISSING_START_DATE", "Missing account period start date")
@@ -36,3 +37,8 @@ object ServiceUnavailableError extends MtdError("SERVICE_UNAVAILABLE", "Internal
 
 //Authorisation Errors
 object UnauthorisedError extends MtdError("CLIENT_OR_AGENT_NOT_AUTHORISED", "The client and/or agent is not authorised.")
+
+object UkDividendsAmountFormatError extends MtdError("FORMAT_UK_DIVIDENDS", "UK Dividends format is invalid.")
+object NonUkDividendsAmountFormatError extends MtdError("FORMAT_OTHER_DIVIDENDS", "Other UK Dividends format is invalid.")
+object TaxYearNotSpecifiedRuleError extends
+  MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "Tax year not supported, because it precedes the earliest allowable tax year")
