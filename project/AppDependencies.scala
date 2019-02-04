@@ -24,7 +24,7 @@ object AppDependencies {
     ws,
     "uk.gov.hmrc" %% "bootstrap-play-26" % "0.36.0",
     "uk.gov.hmrc" %% "domain" % "5.3.0",
-    "org.typelevel" %% "cats-core" % "1.5.0"
+    "org.typelevel" %% "cats-core" % "1.6.0"
   )
 
   def test(scope: String = "test, it"): Seq[sbt.ModuleID] = Seq(
@@ -36,7 +36,7 @@ object AppDependencies {
 
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
 
-    "com.github.tomakehurst" % "wiremock" % "2.20.0" % scope  )
+    "com.github.tomakehurst" % "wiremock" % "2.21.0" % scope  )
 
 
   // Fixes a transitive dependency clash between wiremock and scalatestplus-play
