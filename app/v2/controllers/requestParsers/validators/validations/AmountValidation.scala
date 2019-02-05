@@ -27,7 +27,5 @@ object AmountValidation {
     } else {
       List(error)
     }
-
   }
-
 }

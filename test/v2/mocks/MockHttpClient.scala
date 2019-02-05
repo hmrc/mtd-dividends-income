@@ -18,6 +18,7 @@ package v2.mocks
 
 import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
+import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -31,6 +32,11 @@ trait MockHttpClient extends MockFactory {
     def get[T](url: String): CallHandler[Future[T]] = {
       (mockHttpClient.GET(_: String)(_: HttpReads[T], _: HeaderCarrier, _: ExecutionContext))
         .expects(url, *, *, *)
+    }
+
+    def post[I, T](url: String, body: I): CallHandler[Future[T]] = {
+      (mockHttpClient.POST[I, T](_: String, _: I, _: Seq[(String, String)])(_:Writes[I], _: HttpReads[T], _: HeaderCarrier, _: ExecutionContext))
+        .expects(url, body, *, *, *, *, *)
     }
   }
 }
