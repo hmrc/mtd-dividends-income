@@ -49,14 +49,14 @@ class DesConnectorSpec extends ConnectorSpec {
         val amendDividendsRequest = AmendDividendsRequest(Nino(nino), desTaxYear, DividendsFixture.dividendsModel)
         val correlationId = "X-123"
         val transactionReference = "000000000001"
-        val expectedResult = DesResponse[String](correlationId, transactionReference)
+        val expectedResult: DesResponse[String] = DesResponse[String](correlationId, transactionReference)
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
           s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear",
           DividendsFixture.dividendsModel)
           .returns(Future.successful(Right(expectedResult)))
 
-        val result = await(connector.amend(amendDividendsRequest))
+        val result: AmendDividendsConnectorOutcome = await(connector.amend(amendDividendsRequest))
         result shouldBe Right(expectedResult)
       }
     }
@@ -76,7 +76,7 @@ class DesConnectorSpec extends ConnectorSpec {
 
         val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(taxYear), DividendsFixture.dividendsModel)
 
-        val result = await(connector.amend(amendDividendsRequest))
+        val result: AmendDividendsConnectorOutcome = await(connector.amend(amendDividendsRequest))
 
         result shouldBe Left(expectedDesResponse)
       }
@@ -97,7 +97,7 @@ class DesConnectorSpec extends ConnectorSpec {
 
         val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(taxYear), DividendsFixture.dividendsModel)
 
-        val result = await(connector.amend(amendDividendsRequest))
+        val result: AmendDividendsConnectorOutcome = await(connector.amend(amendDividendsRequest))
 
         result shouldBe Left(expectedDesResponse)
       }
