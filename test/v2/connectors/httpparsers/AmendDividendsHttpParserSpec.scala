@@ -79,7 +79,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
 
     "return a generic error" when {
 
-      "the successful json response from DES can't be read" in {
+      "DES returns status 200 and body can't be read" in {
 
         val httpResponse = HttpResponse(OK, Some(Json.obj("foo" -> "bar")), Map("CorrelationId" -> Seq(correlationId)))
         val expected =  DesResponse(correlationId, GenericError(DownstreamError))
