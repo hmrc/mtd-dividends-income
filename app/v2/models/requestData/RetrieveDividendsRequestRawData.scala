@@ -14,20 +14,7 @@
  * limitations under the License.
  */
 
-package v2.models
-
-import v2.models.auth.UserDetails
-import v2.models.errors.{DesError, ErrorWrapper, MtdError}
-
-package object outcomes {
-
-  type AuthOutcome = Either[MtdError, UserDetails]
-  type MtdIdLookupOutcome = Either[MtdError, String]
-
-  type AmendDividendsConnectorOutcome = Either[DesResponse[DesError], DesResponse[String]]
-  type AmendDividendsOutcome = Either[ErrorWrapper, String]
+package v2.models.requestData
 
 
-  type RetrieveDividendsConnectorOutcome = Either[DesResponse[DesError], DesResponse[Dividends]]
-
-}
+case class RetrieveDividendsRequestRawData(nino: String, taxYear: String) extends InputData
