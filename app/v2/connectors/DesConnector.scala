@@ -23,8 +23,8 @@ import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import v2.config.AppConfig
 import v2.models.Dividends
-import v2.models.outcomes.AmendDividendsConnectorOutcome
-import v2.models.requestData.AmendDividendsRequest
+import v2.models.outcomes.{AmendDividendsConnectorOutcome, RetrieveDividendsConnectorOutcome}
+import v2.models.requestData.{AmendDividendsRequest, RetrieveDividendsRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,5 +48,24 @@ class DesConnector @Inject()(http: HttpClient, appConfig: AppConfig) {
     val url = s"${appConfig.desBaseUrl}/income-tax/nino/$nino/income-source/dividends/annual/$taxYear"
 
     http.POST[Dividends, AmendDividendsConnectorOutcome](url, amendDividendsRequest.model)(writes, amendHttpReads, desHeaderCarrier, implicitly)
+  }
+
+  def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest)
+              (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RetrieveDividendsConnectorOutcome] = {
+
+    val nino = retrieveDividendsRequest.nino.nino
+    val taxYear = retrieveDividendsRequest.desTaxYear
+    import v2.connectors.httpparsers.RetrieveDividendsHttpParser.retrieveHttpReads
+
+
+    val url = s"${appConfig.desBaseUrl}/income-tax/nino/$nino/income-source/dividends/annual/$taxYear"
+    http.GET[RetrieveDividendsConnectorOutcome](url) (retrieveHttpReads, desHeaderCarrier, implicitly)
+
+
+
+
+
+
+
   }
 }

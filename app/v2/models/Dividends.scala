@@ -17,6 +17,8 @@
 package v2.models
 
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
+
 
 case class Dividends(ukDividends: Option[BigDecimal], otherUkDividends: Option[BigDecimal])
 
