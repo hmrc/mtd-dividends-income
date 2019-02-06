@@ -17,7 +17,7 @@
 package v2.controllers.requestParsers.validators.validations
 
 import support.UnitSpec
-import v2.models.errors.{MtdError, NonUkDividendsAmountFormatError, UkDividendsAmountFormatError}
+import v2.models.errors.{MtdError, OtherUkDividendsAmountFormatError, UkDividendsAmountFormatError}
 import v2.utils.JsonErrorValidators
 
 class AmountValidationSpec extends UnitSpec with JsonErrorValidators {
@@ -52,7 +52,7 @@ class AmountValidationSpec extends UnitSpec with JsonErrorValidators {
 
     val exampleErrorsToReturn = List(
       UkDividendsAmountFormatError,
-      NonUkDividendsAmountFormatError
+      OtherUkDividendsAmountFormatError
     )
 
     exampleErrorsToReturn.foreach { error =>

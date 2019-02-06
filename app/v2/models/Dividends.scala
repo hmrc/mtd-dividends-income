@@ -18,7 +18,7 @@ package v2.models
 
 import play.api.libs.json._
 
-case class Dividends(ukDividends: Option[BigDecimal], nonUkDividends: Option[BigDecimal])
+case class Dividends(ukDividends: Option[BigDecimal], otherUkDividends: Option[BigDecimal])
 
 object Dividends {
 
