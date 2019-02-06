@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package v2.models
+package v2.models.requestData
 
-import v2.models.auth.UserDetails
-import v2.models.errors.{DesError, MtdError}
+import uk.gov.hmrc.domain.Nino
+import v2.models.Dividends
 
-package object outcomes {
 
-  type AuthOutcome = Either[MtdError, UserDetails]
-  type MtdIdLookupOutcome = Either[MtdError, String]
-
-  type AmendDividendsConnectorOutcome = Either[DesResponse[DesError], DesResponse[String]]
-
-  type RetrieveDividendsConnectorOutcome = Either[DesResponse[DesError], DesResponse[Dividends]]
-
-}
+case class RetrieveDividendsRequest(nino: Nino, desTaxYear: String)
