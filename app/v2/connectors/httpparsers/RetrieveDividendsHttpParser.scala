@@ -45,14 +45,14 @@ object RetrieveDividendsHttpParser extends HttpParser {
         case OK => logger.info("[RetrieveDividendsHttpParser][read] - " +
           s"Success response received from DES with correlationId: $correlationId when calling $url")
           parseResponse(response)
-        case BAD_REQUEST | FORBIDDEN | NOT_FOUND => Left(DesResponse(correlationId, parseErrors(response)))
+        case BAD_REQUEST | NOT_FOUND => Left(DesResponse(correlationId, parseErrors(response)))
         case INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE => Left(DesResponse(correlationId, GenericError(DownstreamError)))
         case _ => Left(DesResponse(correlationId, GenericError(DownstreamError)))
       }
     }
 
     private def parseResponse(response: HttpResponse): RetrieveDividendsConnectorOutcome =
-      response.validateJson[Dividends](Dividends.desReads) match {
+      response.validateJson[Dividends] match {
         case Some(dividends) => Right(DesResponse(retrieveCorrelationId(response), dividends))
         case None => Left(DesResponse(retrieveCorrelationId(response), GenericError(DownstreamError)))
       }

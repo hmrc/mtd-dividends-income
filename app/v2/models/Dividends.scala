@@ -27,11 +27,6 @@ object Dividends {
   implicit val reads: Reads[Dividends] = Json.reads[Dividends]
   implicit val writes: Writes[Dividends] = Json.writes[Dividends]
 
-  val desReads: Reads[Dividends] = (
-    (JsPath \ "ukDividends").readNullable[BigDecimal] and
-      (JsPath \ "otherUkDividends").readNullable[BigDecimal]
-    ) (Dividends.apply _)
-
 }
 
 
