@@ -38,7 +38,7 @@ class DividendsSpec extends UnitSpec with JsonErrorValidators{
     )
 
     testPropertyType[Dividends](mtdFormatJson)(
-      path = "/nonUkDividends",
+      path = "/otherUkDividends",
       replacement = "notANumber".toJson,
       expectedError = JsonError.NUMBER_FORMAT_EXCEPTION
     )
