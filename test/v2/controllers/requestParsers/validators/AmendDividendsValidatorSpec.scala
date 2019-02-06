@@ -20,7 +20,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.AnyContentAsJson
 import support.UnitSpec
 import v2.fixtures.Fixtures.DividendsFixture
-import v2.models.errors.{NinoFormatError, NonUkDividendsAmountFormatError, TaxYearFormatError, UkDividendsAmountFormatError}
+import v2.models.errors.{NinoFormatError, OtherUkDividendsAmountFormatError, TaxYearFormatError, UkDividendsAmountFormatError}
 import v2.models.requestData.AmendDividendsRequestRawData
 
 class AmendDividendsValidatorSpec extends UnitSpec{
@@ -59,17 +59,17 @@ class AmendDividendsValidatorSpec extends UnitSpec{
     }
 
     "return no errors" when {
-      "only nonUkDividends is supplied as request data" in {
+      "only otherUkDividends is supplied as request data" in {
         val nino = "AA123456A"
         val taxYear = "2018-19"
-        val onlyNonUkDividendsJson: JsValue = Json.parse(
+        val onlyOtherUkDividendsJson: JsValue = Json.parse(
           s"""{
-             |  "nonUkDividends": 10000.00
+             |  "otherUkDividends": 10000.00
              |}""".stripMargin
 
         )
         val expectedData = Nil
-        val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(onlyNonUkDividendsJson))
+        val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(onlyOtherUkDividendsJson))
 
         val result = new AmendDividendsValidator().validate(requestRawData)
 
@@ -123,7 +123,7 @@ class AmendDividendsValidatorSpec extends UnitSpec{
         val requestBody:JsValue = Json.parse(
           s"""{
              |  "ukDividends": -20.00,
-             |  "nonUkDividends": 10000.00
+             |  "otherUkDividends": 10000.00
              |}""".stripMargin
 
         )
@@ -137,17 +137,17 @@ class AmendDividendsValidatorSpec extends UnitSpec{
     }
 
     "return multiple invalid amount errors" when {
-      "an invalid amount is supplied for both ukDividends and nonUkDividends" in {
+      "an invalid amount is supplied for both ukDividends and otherUkDividends" in {
         val nino = "AA123456A"
         val taxYear = "2018-19"
         val requestBody:JsValue = Json.parse(
           s"""{
              |  "ukDividends": -20.00,
-             |  "nonUkDividends": 99999999999999999999999999999999999.00
+             |  "otherUkDividends": 99999999999999999999999999999999999.00
              |}""".stripMargin
 
         )
-        val expectedData = List(UkDividendsAmountFormatError, NonUkDividendsAmountFormatError)
+        val expectedData = List(UkDividendsAmountFormatError, OtherUkDividendsAmountFormatError)
         val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(requestBody))
 
         val result = new AmendDividendsValidator().validate(requestRawData)

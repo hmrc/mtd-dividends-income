@@ -18,7 +18,7 @@ package v2.controllers.requestParsers.validators
 
 import v2.controllers.requestParsers.validators.validations.{AmountValidation, JsonFormatValidation, NinoValidation, TaxYearValidation}
 import v2.models.Dividends
-import v2.models.errors.{MtdError, NonUkDividendsAmountFormatError, UkDividendsAmountFormatError}
+import v2.models.errors.{MtdError, OtherUkDividendsAmountFormatError, UkDividendsAmountFormatError}
 import v2.models.requestData.AmendDividendsRequestRawData
 
 class AmendDividendsValidator extends Validator[AmendDividendsRequestRawData]{
@@ -47,9 +47,9 @@ class AmendDividendsValidator extends Validator[AmendDividendsRequestRawData]{
         case None => Nil
         case amount => AmountValidation.validate(amount, UkDividendsAmountFormatError)
       },
-      dividends.nonUkDividends match {
+      dividends.otherUkDividends match {
         case None => Nil
-        case amount => AmountValidation.validate(amount, NonUkDividendsAmountFormatError)
+        case amount => AmountValidation.validate(amount, OtherUkDividendsAmountFormatError)
       }
     )
   }
