@@ -60,7 +60,9 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
       case BadRequestError
            | NinoFormatError
            | TaxYearFormatError
-           | TaxYearNotSpecifiedRuleError => BadRequest(Json.toJson(errorWrapper))
+           | TaxYearNotSpecifiedRuleError
+           | UkDividendsAmountFormatError
+           | OtherUkDividendsAmountFormatError => BadRequest(Json.toJson(errorWrapper))
       case DownstreamError => InternalServerError(Json.toJson(errorWrapper))
 
     }
