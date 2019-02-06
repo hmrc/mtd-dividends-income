@@ -17,7 +17,7 @@
 package v2.models
 
 import v2.models.auth.UserDetails
-import v2.models.errors.{DesError, MtdError}
+import v2.models.errors.{DesError, ErrorWrapper, MtdError}
 
 package object outcomes {
 
@@ -25,4 +25,6 @@ package object outcomes {
   type MtdIdLookupOutcome = Either[MtdError, String]
 
   type AmendDividendsConnectorOutcome = Either[DesResponse[DesError], DesResponse[String]]
+  type AmendDividendsOutcome = Either[ErrorWrapper, String]
+
 }
