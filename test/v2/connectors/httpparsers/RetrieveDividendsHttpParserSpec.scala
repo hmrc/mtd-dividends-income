@@ -37,7 +37,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
   val correlationId = "X-123"
 
   "read" should {
-    "return a DesResponse" when {
+    "return a DesResponse with dividends" when {
       "the http response contains a 200" in {
 
         val httpResponse = HttpResponse(OK, Some(desExpectedJson), Map("CorrelationId" -> Seq(correlationId)))
