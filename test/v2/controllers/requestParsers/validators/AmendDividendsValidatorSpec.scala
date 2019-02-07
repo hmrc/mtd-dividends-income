@@ -20,7 +20,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.AnyContentAsJson
 import support.UnitSpec
 import v2.fixtures.Fixtures.DividendsFixture
-import v2.models.errors.{NinoFormatError, OtherUkDividendsAmountFormatError, TaxYearFormatError, UkDividendsAmountFormatError}
+import v2.models.errors._
 import v2.models.requestData.AmendDividendsRequestRawData
 
 class AmendDividendsValidatorSpec extends UnitSpec{
@@ -95,6 +95,19 @@ class AmendDividendsValidatorSpec extends UnitSpec{
         val nino = "AA123456A"
         val taxYear = "2018"
         val expectedData = List(TaxYearFormatError)
+        val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
+
+        val result = new AmendDividendsValidator().validate(requestRawData)
+
+        result shouldBe expectedData
+      }
+    }
+
+    "return minimum tax year rule error" when {
+      "tax year is supplied is before 2016-17" in {
+        val nino = "AA123456A"
+        val taxYear = "2015-16"
+        val expectedData = List(TaxYearNotSpecifiedRuleError)
         val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
 
         val result = new AmendDividendsValidator().validate(requestRawData)

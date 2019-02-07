@@ -30,7 +30,7 @@ class ErrorWrapperSpec extends UnitSpec {
       """
         |{
         |   "code": "FORMAT_NINO",
-        |   "message": "The NINO format is invalid"
+        |   "message": "The provided NINO is invalid"
         |}
       """.stripMargin
     )
@@ -47,7 +47,7 @@ class ErrorWrapperSpec extends UnitSpec {
       """
         |{
         |   "code": "FORMAT_NINO",
-        |   "message": "The NINO format is invalid"
+        |   "message": "The provided NINO is invalid"
         |}
       """.stripMargin
     )
@@ -62,7 +62,7 @@ class ErrorWrapperSpec extends UnitSpec {
       Some (
         Seq(
           NinoFormatError,
-          MissingStartDateError
+          TaxYearFormatError
         )
       )
     )
@@ -75,11 +75,11 @@ class ErrorWrapperSpec extends UnitSpec {
         |   "errors": [
         |       {
         |         "code": "FORMAT_NINO",
-        |         "message": "The NINO format is invalid"
+        |         "message": "The provided NINO is invalid"
         |       },
         |       {
-        |         "code": "MISSING_START_DATE",
-        |         "message": "Missing account period start date"
+        |         "code": "FORMAT_TAX_YEAR",
+        |         "message": "The provided tax year is invalid"
         |       }
         |   ]
         |}
