@@ -134,6 +134,33 @@ class DividendsISpec extends IntegrationBaseSpec {
         response.json shouldBe Json.toJson(expectedBody)
       }
     }
+
+    "return 400 (Bad Request)" when {
+      amendRequestValidationErrorTest("AA1123A", "2017-18", Status.BAD_REQUEST, NinoFormatError)
+      amendRequestValidationErrorTest("AA123456A", "2017-17", Status.BAD_REQUEST, TaxYearFormatError)
+    }
+
+    "return 403 (Forbidden Error)" when {
+      amendRequestValidationErrorTest("AA123456A", "2015-16", Status.FORBIDDEN, TaxYearNotSpecifiedRuleError)
+    }
+
+    def amendRequestValidationErrorTest(requestNino:String, requestTaxYear:String, expectedStatus: Int, expectedBody: MtdError): Unit = {
+      s"validation fails with ${expectedBody.code} error" in new Test {
+
+        override val nino: String = requestNino
+        override val taxYear: String = requestTaxYear
+
+        override def setupStubs(): StubMapping = {
+          AuditStub.audit()
+          AuthStub.authorised()
+          MtdIdLookupStub.ninoFound(nino)
+        }
+
+        val response: WSResponse = await(request().put(DividendsFixture.mtdFormatJson))
+        response.status shouldBe expectedStatus
+        response.json shouldBe Json.toJson(expectedBody)
+      }
+    }
   }
 
   def errorBody(code: String): String =
