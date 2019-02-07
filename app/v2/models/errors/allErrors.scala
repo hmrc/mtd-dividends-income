@@ -41,4 +41,4 @@ object UnauthorisedError extends MtdError("CLIENT_OR_AGENT_NOT_AUTHORISED", "The
 object UkDividendsAmountFormatError extends MtdError("FORMAT_UK_DIVIDENDS", "UK Dividends format is invalid.")
 object OtherUkDividendsAmountFormatError extends MtdError("FORMAT_OTHER_DIVIDENDS", "Other UK Dividends format is invalid.")
 object TaxYearNotSpecifiedRuleError extends
-  MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "Tax year not supported, because it precedes the earliest allowable tax year")
+  MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "Tax year not supported")
