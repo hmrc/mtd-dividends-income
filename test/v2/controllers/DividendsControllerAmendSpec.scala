@@ -95,6 +95,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
         BadRequestError,
         NinoFormatError,
         TaxYearFormatError,
+        TaxYearNotSpecifiedRuleError,
         UkDividendsAmountFormatError,
         OtherUkDividendsAmountFormatError
       )
@@ -107,17 +108,6 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
       badRequestErrorsFromParser.foreach(errorsFromParserTester(_, BAD_REQUEST))
       badRequestErrorsFromService.foreach(errorsFromServiceTester(_, BAD_REQUEST))
-
-    }
-
-    "return 403 Forbidden status with single error" when {
-
-      val forbiddenErrors = List(
-        TaxYearNotSpecifiedRuleError
-      )
-
-      forbiddenErrors.foreach(errorsFromParserTester(_, FORBIDDEN))
-      forbiddenErrors.foreach(errorsFromServiceTester(_, FORBIDDEN))
 
     }
 

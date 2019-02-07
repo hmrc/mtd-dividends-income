@@ -138,10 +138,7 @@ class DividendsISpec extends IntegrationBaseSpec {
     "return 400 (Bad Request)" when {
       amendRequestValidationErrorTest("AA1123A", "2017-18", Status.BAD_REQUEST, NinoFormatError)
       amendRequestValidationErrorTest("AA123456A", "2017-17", Status.BAD_REQUEST, TaxYearFormatError)
-    }
-
-    "return 403 (Forbidden Error)" when {
-      amendRequestValidationErrorTest("AA123456A", "2015-16", Status.FORBIDDEN, TaxYearNotSpecifiedRuleError)
+      amendRequestValidationErrorTest("AA123456A", "2015-16", Status.BAD_REQUEST, TaxYearNotSpecifiedRuleError)
     }
 
     def amendRequestValidationErrorTest(requestNino:String, requestTaxYear:String, expectedStatus: Int, expectedBody: MtdError): Unit = {
