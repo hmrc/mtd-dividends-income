@@ -52,7 +52,6 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
       }
     }
 
-
     "return single invalid tax year error" when {
       "an invalid tax year is passed" in new Test {
         val desTaxYear = "2019-20"
@@ -84,6 +83,7 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
         result shouldBe Left(expected)
       }
     }
+    
     "return a single error" when {
       "the DesConnector returns multiple errors and one maps to a DownstreamError" in new Test {
         val desTaxYear = "2019"
@@ -118,9 +118,14 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
       "INVALID_NINO" -> NinoFormatError,
       "INVALID_TYPE" -> DownstreamError,
       "INVALID_TAXYEAR" -> TaxYearFormatError,
+      "INVALID_PAYLOAD" -> BadRequestError,
       "INVALID_INCOME_SOURCE" -> DownstreamError,
       "NOT_FOUND_PERIOD" -> NotFoundError,
       "NOT_FOUND_INCOME_SOURCE" -> DownstreamError,
+      "MISSING_GIFT_AID_AMOUNT" -> DownstreamError,
+      "MISSING_CHARITIES_NAME_INVESTMENT" -> DownstreamError,
+      "MISSING_INVESTMENT_AMOUNT" -> DownstreamError,
+      "MISSING_CHARITIES_NAME_GIFT_AID" -> DownstreamError,
       "SERVICE_UNAVAILABLE" -> DownstreamError,
       "SERVER_ERROR" -> DownstreamError
     )
