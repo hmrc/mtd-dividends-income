@@ -57,7 +57,4 @@ object RetrieveDividendsHttpParser extends HttpParser {
       }
   }
 
-
-
-
 }

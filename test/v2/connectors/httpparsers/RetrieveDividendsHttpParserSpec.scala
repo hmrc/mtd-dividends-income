@@ -89,7 +89,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
             |}
           """.
             stripMargin)
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
         val unHandledStatusCode = SEE_OTHER
 
         val httpResponse = HttpResponse(unHandledStatusCode, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
@@ -99,7 +99,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
 
 
       "the error response from DES can't be read" in {
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
         val httpResponse = HttpResponse(OK, None, Map("CorrelationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(PUT, "/test", httpResponse)
@@ -115,7 +115,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
             |}
           """.
             stripMargin)
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
         val httpResponse = HttpResponse(INTERNAL_SERVER_ERROR, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(PUT, "/test", httpResponse)
@@ -131,7 +131,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
             |}
           """.
             stripMargin)
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
         val httpResponse = HttpResponse(SERVICE_UNAVAILABLE, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(PUT, "/test", httpResponse)

@@ -26,7 +26,7 @@ import v2.models.outcomes.{AmendDividendsOutcome, DesResponse, RetrieveDividends
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DividendsService @Inject() (desConnector: DesConnector) {
+class DividendsService @Inject()(desConnector: DesConnector) {
 
   val logger: Logger = Logger(this.getClass)
 
@@ -65,9 +65,6 @@ class DividendsService @Inject() (desConnector: DesConnector) {
         }
       case Left(DesResponse(correlationId, SingleError(error))) => Left(ErrorWrapper(Some(correlationId), desErrorToMtdError(error.code), None))
       case Left(DesResponse(correlationId, GenericError(error))) => Left(ErrorWrapper(Some(correlationId), error, None))
-
-
-
     }
   }
 
