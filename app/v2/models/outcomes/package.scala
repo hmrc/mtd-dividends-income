@@ -29,5 +29,5 @@ package object outcomes {
 
 
   type RetrieveDividendsConnectorOutcome = Either[DesResponse[DesError], DesResponse[Dividends]]
-
+  type RetrieveDividendsOutcome = Either[ErrorWrapper, DesResponse[Dividends]]
 }
