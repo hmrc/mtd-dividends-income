@@ -17,16 +17,8 @@
 package v2.models.errors
 
 // Format Errors
-object NinoFormatError extends MtdError("FORMAT_NINO", "The NINO format is invalid")
+object NinoFormatError extends MtdError("FORMAT_NINO", "The provided NINO is invalid")
 object TaxYearFormatError extends MtdError("FORMAT_TAX_YEAR", "The provided tax year is invalid")
-
-// Date Errors
-object MissingStartDateError extends MtdError("MISSING_START_DATE", "Missing account period start date")
-object MissingEndDateError extends MtdError("MISSING_END_DATE", "Missing account period end date")
-object InvalidStartDateError extends MtdError("FORMAT_START_DATE", "Invalid account period start date")
-object InvalidEndDateError extends MtdError("FORMAT_END_DATE", "Invalid account period end date")
-object InvalidRangeError extends MtdError("RANGE_INVALID", "The start date must be the same day or before the from date")
-
 
 //Standard Errors
 object DownstreamError extends MtdError("INTERNAL_SERVER_ERROR", "An internal server error occurred")
@@ -41,4 +33,4 @@ object UnauthorisedError extends MtdError("CLIENT_OR_AGENT_NOT_AUTHORISED", "The
 object UkDividendsAmountFormatError extends MtdError("FORMAT_UK_DIVIDENDS", "UK Dividends format is invalid.")
 object OtherUkDividendsAmountFormatError extends MtdError("FORMAT_OTHER_DIVIDENDS", "Other UK Dividends format is invalid.")
 object TaxYearNotSpecifiedRuleError extends
-  MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "Tax year not supported")
+  MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "Tax year not supported, because it precedes the earliest allowable tax year")
