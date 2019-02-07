@@ -18,7 +18,6 @@ package v2.connectors.httpparsers
 
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{Reads, __}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import v2.models.Dividends
 import v2.models.errors.{DownstreamError, GenericError}
@@ -57,8 +56,5 @@ object RetrieveDividendsHttpParser extends HttpParser {
         case None => Left(DesResponse(retrieveCorrelationId(response), GenericError(DownstreamError)))
       }
   }
-
-
-
 
 }

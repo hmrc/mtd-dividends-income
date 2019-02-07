@@ -28,6 +28,9 @@ import scala.concurrent.Future
 
 class DesConnectorSpec extends ConnectorSpec {
 
+  lazy val baseUrl = "test-BaseUrl"
+  val correlationId = "X-123"
+
   trait Test extends MockHttpClient with MockAppConfig {
     val connector = new DesConnector(
       http = mockHttpClient,
@@ -37,9 +40,6 @@ class DesConnectorSpec extends ConnectorSpec {
     MockedAppConfig.desToken returns "des-token"
     MockedAppConfig.desEnvironment returns "des-environment"
   }
-
-  lazy val baseUrl = "test-BaseUrl"
-  val correlationId = "X-123"
 
 
   "calling amend" should {
@@ -114,7 +114,7 @@ class DesConnectorSpec extends ConnectorSpec {
         val expectedResult = DesResponse(correlationId, DividendsFixture.dividendsModel)
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
-        s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear")
+          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear")
           .returns(Future.successful(Right(expectedResult)))
 
         val retrieveDividends = RetrieveDividendsRequest(Nino(nino), desTaxYear)

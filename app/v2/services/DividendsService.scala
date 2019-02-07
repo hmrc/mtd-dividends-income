@@ -20,14 +20,13 @@ import javax.inject.Inject
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.models.errors._
-import v2.models.requestData.AmendDividendsRequest
+import v2.models.requestData.{AmendDividendsRequest, RetrieveDividendsRequest}
 import v2.connectors.DesConnector
-import v2.models.outcomes.DesResponse
-import v2.models.outcomes.AmendDividendsOutcome
+import v2.models.outcomes.{AmendDividendsOutcome, DesResponse, RetrieveDividendsOutcome}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DividendsService @Inject() (desConnector: DesConnector) {
+class DividendsService @Inject()(desConnector: DesConnector) {
 
   val logger: Logger = Logger(this.getClass)
 
@@ -50,11 +49,32 @@ class DividendsService @Inject() (desConnector: DesConnector) {
     }
   }
 
+  def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RetrieveDividendsOutcome] = {
+
+    desConnector.retrieve(retrieveDividendsRequest).map {
+
+      case Right(desResponse) => Right(DesResponse(desResponse.CorrelationId, desResponse.responseData))
+      case Left(DesResponse(correlationId, MultipleErrors(errors))) =>
+        val mtdErrors = errors.map(error => desErrorToMtdError(error.code))
+        if (mtdErrors.contains(DownstreamError)) {
+          logger.info(s"[DividendsIncomeService] [retrieve] [CorrelationId - $correlationId]" +
+            s" - downstream returned INVALID_IDTYPE, INVALID_INCOME_SOURCE or NOT_FOUND_INCOME_SOURCE. Revert to ISE")
+          Left(ErrorWrapper(Some(correlationId), DownstreamError, None))
+        } else {
+          Left(ErrorWrapper(Some(correlationId), BadRequestError, Some(mtdErrors)))
+        }
+      case Left(DesResponse(correlationId, SingleError(error))) => Left(ErrorWrapper(Some(correlationId), desErrorToMtdError(error.code), None))
+      case Left(DesResponse(correlationId, GenericError(error))) => Left(ErrorWrapper(Some(correlationId), error, None))
+    }
+  }
+
   private def desErrorToMtdError: Map[String, MtdError] = Map(
     "INVALID_NINO" -> NinoFormatError,
     "INVALID_TYPE" -> DownstreamError,
     "INVALID_TAXYEAR" -> TaxYearFormatError,
     "INVALID_PAYLOAD" -> BadRequestError,
+    "INVALID_INCOME_SOURCE" -> DownstreamError,
+    "NOT_FOUND_PERIOD" -> NotFoundError,
     "NOT_FOUND_INCOME_SOURCE" -> DownstreamError,
     "MISSING_GIFT_AID_AMOUNT" -> DownstreamError,
     "MISSING_CHARITIES_NAME_INVESTMENT" -> DownstreamError,

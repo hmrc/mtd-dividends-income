@@ -34,6 +34,7 @@ object Fixtures {
       ukDividends = Some(10000.00),
       otherUkDividends = Some(10000.00))
 
+
   }
 
 }

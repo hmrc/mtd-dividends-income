@@ -61,11 +61,5 @@ class DesConnector @Inject()(http: HttpClient, appConfig: AppConfig) {
     val url = s"${appConfig.desBaseUrl}/income-tax/nino/$nino/income-source/dividends/annual/$taxYear"
     http.GET[RetrieveDividendsConnectorOutcome](url) (retrieveHttpReads, desHeaderCarrier, implicitly)
 
-
-
-
-
-
-
   }
 }

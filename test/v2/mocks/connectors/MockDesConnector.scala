@@ -20,8 +20,8 @@ import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.connectors.DesConnector
-import v2.models.outcomes.AmendDividendsConnectorOutcome
-import v2.models.requestData.AmendDividendsRequest
+import v2.models.outcomes.{AmendDividendsConnectorOutcome, RetrieveDividendsConnectorOutcome}
+import v2.models.requestData.{AmendDividendsRequest, RetrieveDividendsRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,6 +34,12 @@ class MockDesConnector extends MockFactory {
     def amend(amendDividendsRequest: AmendDividendsRequest): CallHandler[Future[AmendDividendsConnectorOutcome]] = {
       (connector.amend(_: AmendDividendsRequest)(_: HeaderCarrier, _: ExecutionContext))
         .expects(amendDividendsRequest, *, *)
+    }
+
+
+    def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest): CallHandler[Future[RetrieveDividendsConnectorOutcome]] = {
+      (connector.retrieve(_: RetrieveDividendsRequest)(_: HeaderCarrier, _: ExecutionContext))
+        .expects(retrieveDividendsRequest, *, *)
     }
   }
 

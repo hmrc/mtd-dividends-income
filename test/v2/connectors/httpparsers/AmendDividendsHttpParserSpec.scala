@@ -69,7 +69,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |  "reason": "some reason"
             |}
           """.stripMargin)
-        val expected =  DesResponse(correlationId, SingleError(MtdError("MISSING_GIFT_AID_AMOUNT", "some reason")))
+        val expected = DesResponse(correlationId, SingleError(MtdError("MISSING_GIFT_AID_AMOUNT", "some reason")))
 
         val httpResponse = HttpResponse(FORBIDDEN, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
         val result = AmendDividendsHttpParser.amendHttpReads.read(PUT, "/test", httpResponse)
@@ -82,7 +82,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
       "DES returns status 200 and body can't be read" in {
 
         val httpResponse = HttpResponse(OK, Some(Json.obj("foo" -> "bar")), Map("CorrelationId" -> Seq(correlationId)))
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
 
         val result = AmendDividendsHttpParser.amendHttpReads.read(PUT, "/test", httpResponse)
@@ -98,7 +98,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |}
           """.
             stripMargin)
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
         val httpResponse = HttpResponse(BAD_REQUEST, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
         val result = AmendDividendsHttpParser.amendHttpReads.read(PUT, "/test", httpResponse)
@@ -114,7 +114,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |}
           """.
             stripMargin)
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
         val unHandledStatusCode = SEE_OTHER
 
         val httpResponse = HttpResponse(unHandledStatusCode, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
@@ -131,7 +131,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |}
           """.
             stripMargin)
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
         val httpResponse = HttpResponse(INTERNAL_SERVER_ERROR, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
         val result = AmendDividendsHttpParser.amendHttpReads.read(PUT, "/test", httpResponse)
@@ -147,7 +147,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |}
           """.
             stripMargin)
-        val expected =  DesResponse(correlationId, GenericError(DownstreamError))
+        val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
         val httpResponse = HttpResponse(SERVICE_UNAVAILABLE, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
         val result = AmendDividendsHttpParser.amendHttpReads.read(PUT, "/test", httpResponse)
@@ -172,7 +172,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |  ]
             |}
           """.stripMargin)
-        val expected =  DesResponse(correlationId, MultipleErrors(Seq(MtdError("INVALID_NINO", "some reason"), MtdError("INVALID_TAXYEAR", "some reason"))))
+        val expected = DesResponse(correlationId, MultipleErrors(Seq(MtdError("INVALID_NINO", "some reason"), MtdError("INVALID_TAXYEAR", "some reason"))))
 
         val httpResponse = HttpResponse(BAD_REQUEST, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
         val result = AmendDividendsHttpParser.amendHttpReads.read(POST, "/test", httpResponse)
@@ -195,7 +195,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |  ]
             |}
           """.stripMargin)
-        val expected =  DesResponse(correlationId,
+        val expected = DesResponse(correlationId,
           MultipleErrors(Seq(MtdError("NOT_FOUND_INCOME_SOURCE", "some reason"), MtdError("MISSING_GIFT_AID_AMOUNT", "some reason"))))
 
         val httpResponse = HttpResponse(FORBIDDEN, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))

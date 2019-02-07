@@ -17,7 +17,6 @@
 package v2.models.requestData
 
 import uk.gov.hmrc.domain.Nino
-import v2.models.Dividends
 
 
 case class RetrieveDividendsRequest(nino: Nino, desTaxYear: String)

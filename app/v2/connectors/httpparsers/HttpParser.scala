@@ -60,4 +60,5 @@ trait HttpParser {
     singleError orElse multipleErrors getOrElse unableToParseJsonError
   }
 
+
 }
