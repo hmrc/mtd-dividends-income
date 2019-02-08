@@ -59,7 +59,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
     AmendDividendsRequest(Nino(nino), DesTaxYear(taxYear), DividendsFixture.dividendsModel)
 
   "amend" should {
-    "return a successful response with X-correlationId in the header" when {
+    "return a successful response with X-CorrelationId in the header" when {
     "the request received is valid" in new Test() {
 
       MockAmendDividendsRequestDataParser.parse(
@@ -71,7 +71,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
       val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
       status(result) shouldBe NO_CONTENT
-      header("X-correlationId", result) shouldBe Some(correlationId)
+      header("X-CorrelationId", result) shouldBe Some(correlationId)
       }
     }
 
@@ -87,7 +87,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
         val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
         status(result) shouldBe BAD_REQUEST
-        header("X-correlationId", result) nonEmpty
+        header("X-CorrelationId", result) nonEmpty
       }
     }
 
@@ -137,7 +137,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
         status(response) shouldBe BAD_REQUEST
         contentAsJson(response) shouldBe Json.toJson(multipleErrorResponse)
-        header("X-correlationId", response) shouldBe Some(correlationId)
+        header("X-CorrelationId", response) shouldBe Some(correlationId)
       }
     }
 
@@ -156,7 +156,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
       status(response) shouldBe expectedStatus
       contentAsJson(response) shouldBe Json.toJson(error)
-      header("X-correlationId", response) shouldBe Some(correlationId)
+      header("X-CorrelationId", response) shouldBe Some(correlationId)
     }
   }
 
@@ -176,7 +176,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
       status(response) shouldBe expectedStatus
       contentAsJson(response) shouldBe Json.toJson(error)
-      header("X-correlationId", response) shouldBe Some(correlationId)
+      header("X-CorrelationId", response) shouldBe Some(correlationId)
     }
   }
 }

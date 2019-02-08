@@ -46,12 +46,12 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
     amendDividendsRequestDataParser.parse(AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(request.body))) match {
       case Right(amendDividendsRequest) => dividendsService.amend(amendDividendsRequest).map{
         case Right(correlationId) =>
-          logger.info(s"[DividendsController][amend] - Success response received with correlationId: $correlationId")
-          NoContent.withHeaders("X-correlationId" -> correlationId)
-        case Left(errorWrapper) => processError(errorWrapper).withHeaders("X-correlationId" -> getCorrelationId(errorWrapper))
+          logger.info(s"[DividendsController][amend] - Success response received with CorrelationId: $correlationId")
+          NoContent.withHeaders("X-CorrelationId" -> correlationId)
+        case Left(errorWrapper) => processError(errorWrapper).withHeaders("X-CorrelationId" -> getCorrelationId(errorWrapper))
       }
       case Left(errorWrapper) => Future.successful {
-        processError(errorWrapper).withHeaders("X-correlationId" -> getCorrelationId(errorWrapper))
+        processError(errorWrapper).withHeaders("X-CorrelationId" -> getCorrelationId(errorWrapper))
       }
     }
   }
@@ -61,12 +61,12 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
     retrieveDividendsRequestDataParser.parse(RetrieveDividendsRequestRawData(nino, taxYear)) match {
       case Right(retrievedDividendsRequest) => dividendsService.retrieve(retrievedDividendsRequest).map{
         case Right(desResponse) =>
-          logger.info(s"[DividendsController][retrieve] - Success response received with correlationId: ${desResponse.correlationId}")
-          Ok(Json.toJson(desResponse.responseData)).withHeaders("X-correlationId" -> desResponse.correlationId)
-        case Left(errorWrapper) => processError(errorWrapper).withHeaders("X-correlationId" -> getCorrelationId(errorWrapper))
+          logger.info(s"[DividendsController][retrieve] - Success response received with CorrelationId: ${desResponse.correlationId}")
+          Ok(Json.toJson(desResponse.responseData)).withHeaders("X-CorrelationId" -> desResponse.correlationId)
+        case Left(errorWrapper) => processError(errorWrapper).withHeaders("X-CorrelationId" -> getCorrelationId(errorWrapper))
       }
       case Left(errorWrapper) => Future.successful {
-        processError(errorWrapper).withHeaders("X-correlationId" -> getCorrelationId(errorWrapper))
+        processError(errorWrapper).withHeaders("X-CorrelationId" -> getCorrelationId(errorWrapper))
       }
     }
   }
@@ -88,12 +88,12 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
   private def getCorrelationId(errorWrapper: ErrorWrapper): String = {
     errorWrapper.correlationId match {
       case Some(correlationId) => logger.info("[DividendsController][getCorrelationId] - " +
-        s"Error received from DES ${Json.toJson(errorWrapper)} with correlationId: $correlationId")
+        s"Error received from DES ${Json.toJson(errorWrapper)} with CorrelationId: $correlationId")
         correlationId
       case None =>
         val correlationId = UUID.randomUUID().toString
         logger.info("[DividendsController][getCorrelationId] - " +
-          s"Validation error: ${Json.toJson(errorWrapper)} with correlationId: $correlationId")
+          s"Validation error: ${Json.toJson(errorWrapper)} with CorrelationId: $correlationId")
         correlationId
     }
   }

@@ -38,7 +38,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
       case Left(DesResponse(correlationId, MultipleErrors(errors))) =>
         val mtdErrors = errors.map(error => desErrorToMtdError(error.code))
         if (mtdErrors.contains(DownstreamError)) {
-          logger.info(s"[DividendsIncomeService] [amend] [correlationId - $correlationId]" +
+          logger.info(s"[DividendsIncomeService] [amend] [CorrelationId - $correlationId]" +
             s" - downstream returned INVALID_IDTYPE or NOT_FOUND_INCOME_SOURCE. Revert to ISE")
           Left(ErrorWrapper(Some(correlationId), DownstreamError, None))
         } else {
@@ -57,7 +57,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
       case Left(DesResponse(correlationId, MultipleErrors(errors))) =>
         val mtdErrors = errors.map(error => desErrorToMtdError(error.code))
         if (mtdErrors.contains(DownstreamError)) {
-          logger.info(s"[DividendsIncomeService] [retrieve] [correlationId - $correlationId]" +
+          logger.info(s"[DividendsIncomeService] [retrieve] [CorrelationId - $correlationId]" +
             s" - downstream returned INVALID_IDTYPE, INVALID_INCOME_SOURCE or NOT_FOUND_INCOME_SOURCE. Revert to ISE")
           Left(ErrorWrapper(Some(correlationId), DownstreamError, None))
         } else {

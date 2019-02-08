@@ -30,6 +30,14 @@ object DesStub extends WireMockMethods {
       |{"transactionReference": "12121"}
     """.stripMargin
 
+  private val retrieveResponseBody =
+    """
+      |{
+      |  "ukDividends": 1000.50,
+      |  "otherUkDividends": 2000.35
+      |}
+    """.stripMargin
+
   def amendSuccess(nino: String, taxYear: String): StubMapping = {
     when(method = POST, uri = dividendsIncomeUrl(nino, taxYear))
       .thenReturn(status = OK, amendResponseBody)
@@ -38,6 +46,16 @@ object DesStub extends WireMockMethods {
   def amendError(nino: String, taxYear: String, errorStatus: Int, errorBody: String): StubMapping = {
     when(method = POST, uri = dividendsIncomeUrl(nino, taxYear))
     .thenReturn(status = errorStatus, errorBody)
+  }
+
+  def retrieveSuccess(nino: String, taxYear: String): StubMapping = {
+    when(method = GET, uri = dividendsIncomeUrl(nino, taxYear))
+      .thenReturn(status = OK, retrieveResponseBody)
+  }
+
+  def retrieveError(nino: String, taxYear: String, errorStatus: Int, errorBody: String): StubMapping = {
+    when(method = GET, uri = dividendsIncomeUrl(nino, taxYear))
+      .thenReturn(status = errorStatus, errorBody)
   }
 
 }
