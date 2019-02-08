@@ -118,7 +118,6 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
       "INVALID_NINO" -> NinoFormatError,
       "INVALID_TYPE" -> DownstreamError,
       "INVALID_TAXYEAR" -> TaxYearFormatError,
-      "INVALID_PAYLOAD" -> BadRequestError,
       "INVALID_INCOME_SOURCE" -> DownstreamError,
       "NOT_FOUND_PERIOD" -> NotFoundError,
       "NOT_FOUND_INCOME_SOURCE" -> DownstreamError,
