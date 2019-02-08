@@ -21,7 +21,7 @@ import play.api.mvc.{AnyContentAsJson, Result}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.fixtures.Fixtures.DividendsFixture
-import v2.mocks.requestParsers.MockAmendDividendsRequestDataParser
+import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetrieveDividendsRequestDataParser}
 import v2.mocks.services.{MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.errors._
 import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
@@ -34,7 +34,8 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
   trait Test extends MockEnrolmentsAuthService
     with MockMtdIdLookupService
     with MockDividendsService
-    with MockAmendDividendsRequestDataParser {
+    with MockAmendDividendsRequestDataParser
+    with MockRetrieveDividendsRequestDataParser {
 
     val hc = HeaderCarrier()
 
@@ -43,6 +44,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
       lookupService = mockMtdIdLookupService,
       mockDividendsService,
       mockAmendDividendsRequestDataParser,
+      mockRetrieveDividendsRequestDataParser,
       cc
     )
 
@@ -57,7 +59,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
     AmendDividendsRequest(Nino(nino), DesTaxYear(taxYear), DividendsFixture.dividendsModel)
 
   "amend" should {
-    "return a successful response with X-CorrelationId in the header" when {
+    "return a successful response with X-correlationId in the header" when {
     "the request received is valid" in new Test() {
 
       MockAmendDividendsRequestDataParser.parse(
@@ -69,7 +71,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
       val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
       status(result) shouldBe NO_CONTENT
-      header("X-CorrelationId", result) shouldBe Some(correlationId)
+      header("X-correlationId", result) shouldBe Some(correlationId)
       }
     }
 
@@ -85,7 +87,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
         val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
         status(result) shouldBe BAD_REQUEST
-        header("X-CorrelationId", result) nonEmpty
+        header("X-correlationId", result) nonEmpty
       }
     }
 
@@ -135,7 +137,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
         status(response) shouldBe BAD_REQUEST
         contentAsJson(response) shouldBe Json.toJson(multipleErrorResponse)
-        header("X-CorrelationId", response) shouldBe Some(correlationId)
+        header("X-correlationId", response) shouldBe Some(correlationId)
       }
     }
 
@@ -154,7 +156,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
       status(response) shouldBe expectedStatus
       contentAsJson(response) shouldBe Json.toJson(error)
-      header("X-CorrelationId", response) shouldBe Some(correlationId)
+      header("X-correlationId", response) shouldBe Some(correlationId)
     }
   }
 
@@ -174,7 +176,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
       status(response) shouldBe expectedStatus
       contentAsJson(response) shouldBe Json.toJson(error)
-      header("X-CorrelationId", response) shouldBe Some(correlationId)
+      header("X-correlationId", response) shouldBe Some(correlationId)
     }
   }
 }

@@ -16,4 +16,4 @@
 
 package v2.models.outcomes
 
-case class DesResponse[+T](CorrelationId: String, responseData: T)
+case class DesResponse[+T](correlationId: String, responseData: T)

@@ -21,10 +21,10 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContentAsJson, ControllerComponents}
-import v2.controllers.requestParsers.AmendDividendsRequestDataParser
+import play.api.mvc.{Action, AnyContent, AnyContentAsJson, ControllerComponents}
+import v2.controllers.requestParsers.{AmendDividendsRequestDataParser, RetrieveDividendsRequestDataParser}
 import v2.models.errors._
-import v2.models.requestData.AmendDividendsRequestRawData
+import v2.models.requestData.{AmendDividendsRequestRawData, RetrieveDividendsRequestRawData}
 import v2.services.{DividendsService, EnrolmentsAuthService, MtdIdLookupService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,6 +35,7 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
                                     val lookupService: MtdIdLookupService,
                                     dividendsService: DividendsService,
                                     amendDividendsRequestDataParser: AmendDividendsRequestDataParser,
+                                    retrieveDividendsRequestDataParser: RetrieveDividendsRequestDataParser,
                                     cc: ControllerComponents
                                    ) extends AuthorisedController(cc) {
 
@@ -46,11 +47,26 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
       case Right(amendDividendsRequest) => dividendsService.amend(amendDividendsRequest).map{
         case Right(correlationId) =>
           logger.info(s"[DividendsController][amend] - Success response received with correlationId: $correlationId")
-          NoContent.withHeaders("X-CorrelationId" -> correlationId)
-        case Left(errorWrapper) => processError(errorWrapper).withHeaders("X-CorrelationId" -> getCorrelationId(errorWrapper))
+          NoContent.withHeaders("X-correlationId" -> correlationId)
+        case Left(errorWrapper) => processError(errorWrapper).withHeaders("X-correlationId" -> getCorrelationId(errorWrapper))
       }
       case Left(errorWrapper) => Future.successful {
-        processError(errorWrapper).withHeaders("X-CorrelationId" -> getCorrelationId(errorWrapper))
+        processError(errorWrapper).withHeaders("X-correlationId" -> getCorrelationId(errorWrapper))
+      }
+    }
+  }
+
+  def retrieve(nino: String, taxYear: String): Action[AnyContent] = authorisedAction(nino).async { implicit request =>
+
+    retrieveDividendsRequestDataParser.parse(RetrieveDividendsRequestRawData(nino, taxYear)) match {
+      case Right(retrievedDividendsRequest) => dividendsService.retrieve(retrievedDividendsRequest).map{
+        case Right(desResponse) =>
+          logger.info(s"[DividendsController][retrieve] - Success response received with correlationId: ${desResponse.correlationId}")
+          Ok(Json.toJson(desResponse.responseData)).withHeaders("X-correlationId" -> desResponse.correlationId)
+        case Left(errorWrapper) => processError(errorWrapper).withHeaders("X-correlationId" -> getCorrelationId(errorWrapper))
+      }
+      case Left(errorWrapper) => Future.successful {
+        processError(errorWrapper).withHeaders("X-correlationId" -> getCorrelationId(errorWrapper))
       }
     }
   }
@@ -63,6 +79,7 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
            | TaxYearNotSpecifiedRuleError
            | UkDividendsAmountFormatError
            | OtherUkDividendsAmountFormatError => BadRequest(Json.toJson(errorWrapper))
+      case NotFoundError => NotFound(Json.toJson(errorWrapper))
       case DownstreamError => InternalServerError(Json.toJson(errorWrapper))
 
     }

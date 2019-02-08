@@ -40,7 +40,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
     "return a DesResponse with dividends" when {
       "the http response contains a 200" in {
 
-        val httpResponse = HttpResponse(OK, Some(desExpectedJson), Map("CorrelationId" -> Seq(correlationId)))
+        val httpResponse = HttpResponse(OK, Some(desExpectedJson), Map("correlationId" -> Seq(correlationId)))
 
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(GET, "/test", httpResponse)
         result shouldBe Right(desResponse)
@@ -57,7 +57,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
           """.stripMargin)
         val expected = DesResponse(correlationId, SingleError(MtdError("TEST_CODE", "some reason")))
 
-        val httpResponse = HttpResponse(BAD_REQUEST, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
+        val httpResponse = HttpResponse(BAD_REQUEST, Some(errorResponseJson), Map("correlationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(GET, "/", httpResponse)
         result shouldBe Left(expected)
       }
@@ -72,7 +72,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
           """.stripMargin)
         val expected = DesResponse(correlationId, SingleError(MtdError("TEST_CODE", "some reason")))
 
-        val httpResponse = HttpResponse(NOT_FOUND, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
+        val httpResponse = HttpResponse(NOT_FOUND, Some(errorResponseJson), Map("correlationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(GET, "/", httpResponse)
         result shouldBe Left(expected)
       }
@@ -92,7 +92,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
         val expected = DesResponse(correlationId, GenericError(DownstreamError))
         val unHandledStatusCode = SEE_OTHER
 
-        val httpResponse = HttpResponse(unHandledStatusCode, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
+        val httpResponse = HttpResponse(unHandledStatusCode, Some(errorResponseJson), Map("correlationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(PUT, "/test", httpResponse)
         result shouldBe Left(expected)
       }
@@ -101,7 +101,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
       "the error response from DES can't be read" in {
         val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
-        val httpResponse = HttpResponse(OK, None, Map("CorrelationId" -> Seq(correlationId)))
+        val httpResponse = HttpResponse(OK, None, Map("correlationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(PUT, "/test", httpResponse)
         result shouldBe Left(expected)
       }
@@ -117,7 +117,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
             stripMargin)
         val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
-        val httpResponse = HttpResponse(INTERNAL_SERVER_ERROR, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
+        val httpResponse = HttpResponse(INTERNAL_SERVER_ERROR, Some(errorResponseJson), Map("correlationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(PUT, "/test", httpResponse)
         result shouldBe Left(expected)
       }
@@ -133,7 +133,7 @@ class RetrieveDividendsHttpParserSpec extends UnitSpec {
             stripMargin)
         val expected = DesResponse(correlationId, GenericError(DownstreamError))
 
-        val httpResponse = HttpResponse(SERVICE_UNAVAILABLE, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
+        val httpResponse = HttpResponse(SERVICE_UNAVAILABLE, Some(errorResponseJson), Map("correlationId" -> Seq(correlationId)))
         val result = RetrieveDividendsHttpParser.retrieveHttpReads.read(PUT, "/test", httpResponse)
         result shouldBe Left(expected)
       }
