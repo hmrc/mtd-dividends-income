@@ -21,7 +21,7 @@ import play.api.mvc.{AnyContentAsJson, Result}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.fixtures.Fixtures.DividendsFixture
-import v2.mocks.requestParsers.MockAmendDividendsRequestDataParser
+import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetrieveDividendsRequestDataParser}
 import v2.mocks.services.{MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.errors._
 import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
@@ -34,7 +34,8 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
   trait Test extends MockEnrolmentsAuthService
     with MockMtdIdLookupService
     with MockDividendsService
-    with MockAmendDividendsRequestDataParser {
+    with MockAmendDividendsRequestDataParser
+    with MockRetrieveDividendsRequestDataParser {
 
     val hc = HeaderCarrier()
 
@@ -43,6 +44,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
       lookupService = mockMtdIdLookupService,
       mockDividendsService,
       mockAmendDividendsRequestDataParser,
+      mockRetrieveDividendsRequestDataParser,
       cc
     )
 

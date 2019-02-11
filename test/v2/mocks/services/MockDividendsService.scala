@@ -19,8 +19,8 @@ package v2.mocks.services
 import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.http.HeaderCarrier
-import v2.models.outcomes.AmendDividendsOutcome
-import v2.models.requestData.AmendDividendsRequest
+import v2.models.outcomes.{AmendDividendsOutcome, RetrieveDividendsOutcome}
+import v2.models.requestData.{AmendDividendsRequest, RetrieveDividendsRequest}
 import v2.services.DividendsService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,6 +33,11 @@ trait MockDividendsService extends MockFactory{
     def amend(DividendsRequest: AmendDividendsRequest): CallHandler[Future[AmendDividendsOutcome]] = {
       (mockDividendsService.amend(_:AmendDividendsRequest)(_: HeaderCarrier, _: ExecutionContext))
         .expects(DividendsRequest, *, *)
+    }
+
+    def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest): CallHandler[Future[RetrieveDividendsOutcome]] = {
+      (mockDividendsService.retrieve(_: RetrieveDividendsRequest)(_: HeaderCarrier, _: ExecutionContext))
+        .expects(retrieveDividendsRequest, *, *)
     }
   }
 

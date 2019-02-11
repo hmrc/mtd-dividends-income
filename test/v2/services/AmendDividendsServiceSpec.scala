@@ -36,7 +36,7 @@ class AmendDividendsServiceSpec extends ServiceSpec {
   }
 
   "calling amend" should {
-    "return a valid correlationId" when {
+    "return a valid CorrelationId" when {
       "a valid request is passed" in new Test{
         val desTaxYear = "2019"
         val expectedResult = correlationId

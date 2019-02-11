@@ -62,7 +62,7 @@ class DesConnectorSpec extends ConnectorSpec {
       }
     }
 
-    "return error response with correlationId and tax year format error" when {
+    "return error response with CorrelationId and tax year format error" when {
       "the request supplied has invalid tax year" in new Test {
 
         val expectedDesResponse = DesResponse(correlationId, SingleError(TaxYearFormatError))
@@ -82,7 +82,7 @@ class DesConnectorSpec extends ConnectorSpec {
       }
     }
 
-    "return response with multiple errors and correlationId" when {
+    "return response with multiple errors and CorrelationId" when {
       "an request supplied with invalid tax year and invalid Nino " in new Test {
 
         val expectedDesResponse = DesResponse(correlationId, MultipleErrors(Seq(TaxYearFormatError, NinoFormatError)))
@@ -125,7 +125,7 @@ class DesConnectorSpec extends ConnectorSpec {
 
       }
     }
-    "return an error response with correlationId" when {
+    "return an error response with CorrelationId" when {
       "an request supplied with invalid tax year" in new Test {
 
         val expectedDesResponse = DesResponse("X-123", SingleError(TaxYearFormatError))
@@ -143,7 +143,7 @@ class DesConnectorSpec extends ConnectorSpec {
       }
     }
 
-    "return a response with multiple errors and correlationId" when {
+    "return a response with multiple errors and CorrelationId" when {
       "an request supplied with invalid tax year and invalid Nino " in new Test {
 
         val expectedDesResponse = DesResponse("X-123", MultipleErrors(Seq(TaxYearFormatError, NinoFormatError)))

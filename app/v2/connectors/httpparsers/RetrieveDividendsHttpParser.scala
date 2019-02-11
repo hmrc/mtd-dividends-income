@@ -37,12 +37,12 @@ object RetrieveDividendsHttpParser extends HttpParser {
       if (response.status != OK) {
         logger.info("[RetrieveDividendsHttpParser][read] - " +
           s"Error response received from DES with status: ${response.status} and body\n" +
-          s"${response.body} and correlationId: $correlationId when calling $url")
+          s"${response.body} and CorrelationId: $correlationId when calling $url")
       }
 
       response.status match {
         case OK => logger.info("[RetrieveDividendsHttpParser][read] - " +
-          s"Success response received from DES with correlationId: $correlationId when calling $url")
+          s"Success response received from DES with CorrelationId: $correlationId when calling $url")
           parseResponse(response)
         case BAD_REQUEST | NOT_FOUND => Left(DesResponse(correlationId, parseErrors(response)))
         case INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE => Left(DesResponse(correlationId, GenericError(DownstreamError)))

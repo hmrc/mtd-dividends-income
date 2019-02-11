@@ -141,7 +141,7 @@ class DividendsISpec extends IntegrationBaseSpec {
       amendRequestValidationErrorTest("AA123456A", "2015-16", Status.BAD_REQUEST, TaxYearNotSpecifiedRuleError)
     }
 
-    def amendRequestValidationErrorTest(requestNino:String, requestTaxYear:String, expectedStatus: Int, expectedBody: MtdError): Unit = {
+    def amendRequestValidationErrorTest(requestNino: String, requestTaxYear: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
       s"validation fails with ${expectedBody.code} error" in new Test {
 
         override val nino: String = requestNino
@@ -159,6 +159,87 @@ class DividendsISpec extends IntegrationBaseSpec {
       }
     }
   }
+
+  "Calling the retrieve dividends endpoint" should {
+
+    "return status 200 with dividends body" when {
+      "any valid request is made" in new Test {
+        override val nino: String = "AA123456A"
+        override val taxYear: String = "2018-19"
+
+        override def setupStubs(): StubMapping = {
+          AuditStub.audit()
+          AuthStub.authorised()
+          MtdIdLookupStub.ninoFound(nino)
+          DesStub.retrieveSuccess(nino, DesTaxYear(taxYear))
+        }
+
+        val response: WSResponse = await(request().get())
+        response.status shouldBe Status.OK
+      }
+    }
+
+    "return 400 (Bad Request)" when {
+      retrieveErrorTest(Status.BAD_REQUEST, "INVALID_NINO", Status.BAD_REQUEST, NinoFormatError)
+      retrieveErrorTest(Status.BAD_REQUEST, "INVALID_TAXYEAR", Status.BAD_REQUEST, TaxYearFormatError)
+    }
+
+    "return 500 (Internal Server Error)" when {
+      retrieveErrorTest(Status.BAD_REQUEST, "INVALID_TYPE", Status.INTERNAL_SERVER_ERROR, DownstreamError)
+      retrieveErrorTest(Status.BAD_REQUEST, "INVALID_INCOME_SOURCE", Status.INTERNAL_SERVER_ERROR, DownstreamError)
+      retrieveErrorTest(Status.NOT_FOUND, "NOT_FOUND_INCOME_SOURCE", Status.INTERNAL_SERVER_ERROR, DownstreamError)
+      retrieveErrorTest(Status.SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", Status.INTERNAL_SERVER_ERROR, DownstreamError)
+      retrieveErrorTest(Status.INTERNAL_SERVER_ERROR, "SERVER_ERROR", Status.INTERNAL_SERVER_ERROR, DownstreamError)
+    }
+
+    "return 404 (Not Found)" when {
+      retrieveErrorTest(Status.NOT_FOUND, "NOT_FOUND_PERIOD", Status.NOT_FOUND, NotFoundError)
+    }
+
+    def retrieveErrorTest(desStatus: Int, errorCode: String, status: Int, mtdError: MtdError): Unit = {
+      s"des return error code $errorCode with status $desStatus" in new Test {
+
+        override val nino: String = "AA123456A"
+        override val taxYear: String = "2018-19"
+
+        override def setupStubs(): StubMapping = {
+          AuditStub.audit()
+          AuthStub.authorised()
+          MtdIdLookupStub.ninoFound(nino)
+          DesStub.retrieveError(nino, DesTaxYear(taxYear), Status.BAD_REQUEST, errorBody(errorCode))
+        }
+
+        val response: WSResponse = await(request().get())
+        response.status shouldBe status
+        response.json shouldBe Json.toJson(mtdError)
+      }
+    }
+
+    "return 400 (Bad Request)" when {
+      retrieveRequestValidationErrorTest("AA123", "2017-18", Status.BAD_REQUEST, NinoFormatError)
+      retrieveRequestValidationErrorTest("AA123456B", "2017-19", Status.BAD_REQUEST, TaxYearFormatError)
+      retrieveRequestValidationErrorTest("AA123456B", "2015-16", Status.BAD_REQUEST, TaxYearNotSpecifiedRuleError)
+    }
+
+    def retrieveRequestValidationErrorTest(requestNino: String, requestTaxYear: String, status: Int, mtdError: MtdError): Unit = {
+      s"validation fails with ${mtdError.code} error" in new Test {
+
+        override val nino: String = requestNino
+        override val taxYear: String = requestTaxYear
+
+        override def setupStubs(): StubMapping = {
+          AuditStub.audit()
+          AuthStub.authorised()
+          MtdIdLookupStub.ninoFound(nino)
+        }
+
+        val response = await(request().get())
+        response.status shouldBe status
+        response.json shouldBe Json.toJson(mtdError)
+      }
+    }
+  }
+
 
   def errorBody(code: String): String =
     s"""
