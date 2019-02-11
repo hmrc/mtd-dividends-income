@@ -18,7 +18,7 @@ package v2.controllers.requestParsers.validators
 
 import v2.controllers.requestParsers.validators.validations._
 import v2.models.Dividends
-import v2.models.errors.{MtdError, OtherUkDividendsAmountFormatError, TaxYearNotSpecifiedRuleError, UkDividendsAmountFormatError}
+import v2.models.errors._
 import v2.models.requestData.AmendDividendsRequestRawData
 
 class AmendDividendsValidator extends Validator[AmendDividendsRequestRawData]{
@@ -42,7 +42,7 @@ class AmendDividendsValidator extends Validator[AmendDividendsRequestRawData]{
   private def emptyBodyValidation: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
     val dividends = data.body.json.as[Dividends]
     List(
-      DefinedFieldValidation.validate(dividends.ukDividends, dividends.otherUkDividends)
+      DefinedFieldValidation.validate(EmptyOrNonMatchingBodyRuleError, dividends.ukDividends, dividends.otherUkDividends)
     )
   }
 

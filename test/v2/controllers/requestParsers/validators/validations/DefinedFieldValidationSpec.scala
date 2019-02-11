@@ -19,7 +19,7 @@ package v2.controllers.requestParsers.validators.validations
 import support.UnitSpec
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.models.Dividends
-import v2.models.errors.DividendsEmptyRuleError
+import v2.models.errors.EmptyOrNonMatchingBodyRuleError
 import v2.utils.JsonErrorValidators
 
 class DefinedFieldValidationSpec extends UnitSpec with JsonErrorValidators {
@@ -29,14 +29,15 @@ class DefinedFieldValidationSpec extends UnitSpec with JsonErrorValidators {
       "top level optional fields exist" in {
 
         val validModel = DividendsFixture.dividendsModel
-        val validationResult = DefinedFieldValidation.validate(validModel.ukDividends, validModel.otherUkDividends)
+        val validationResult = DefinedFieldValidation.validate(EmptyOrNonMatchingBodyRuleError ,validModel.ukDividends, validModel.otherUkDividends)
         validationResult shouldBe List()
       }
     }
 
     "return an error" in {
       val invalidModel = Dividends(None, None)
-      DefinedFieldValidation.validate(invalidModel.ukDividends, invalidModel.otherUkDividends) shouldBe List(DividendsEmptyRuleError)
+      DefinedFieldValidation.validate(EmptyOrNonMatchingBodyRuleError, invalidModel.ukDividends, invalidModel.otherUkDividends) shouldBe
+        List(EmptyOrNonMatchingBodyRuleError)
     }
   }
 }

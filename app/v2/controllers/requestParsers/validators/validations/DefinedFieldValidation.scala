@@ -16,14 +16,14 @@
 
 package v2.controllers.requestParsers.validators.validations
 
-import v2.models.errors.{DividendsEmptyRuleError, MtdError}
+import v2.models.errors.MtdError
 
 object DefinedFieldValidation {
 
-  def validate(fields: Option[_]*): List[MtdError] = {
+  def validate(error: MtdError, fields: Option[_]*): List[MtdError] = {
 
     if (!fields.exists(_.isDefined)) {
-      List(DividendsEmptyRuleError)
+      List(error)
     } else {
       noValidationErrors
     }

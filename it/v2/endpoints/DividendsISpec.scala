@@ -180,7 +180,7 @@ class DividendsISpec extends IntegrationBaseSpec {
 
         val response: WSResponse = await(request().put(emptyRuleError))
         response.status shouldBe Status.BAD_REQUEST
-        response.json shouldBe Json.toJson(ErrorWrapper(None, DividendsEmptyRuleError, None))
+        response.json shouldBe Json.toJson(ErrorWrapper(None, EmptyOrNonMatchingBodyRuleError, None))
       }
 
     }
@@ -259,7 +259,7 @@ class DividendsISpec extends IntegrationBaseSpec {
           MtdIdLookupStub.ninoFound(nino)
         }
 
-        val response = await(request().get())
+        val response: WSResponse = await(request().get())
         response.status shouldBe status
         response.json shouldBe Json.toJson(mtdError)
       }

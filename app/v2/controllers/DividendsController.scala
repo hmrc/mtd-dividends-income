@@ -79,7 +79,7 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
            | TaxYearNotSpecifiedRuleError
            | UkDividendsAmountFormatError
            | OtherUkDividendsAmountFormatError
-           | DividendsEmptyRuleError => BadRequest(Json.toJson(errorWrapper))
+           | EmptyOrNonMatchingBodyRuleError => BadRequest(Json.toJson(errorWrapper))
       case NotFoundError => NotFound(Json.toJson(errorWrapper))
       case DownstreamError => InternalServerError(Json.toJson(errorWrapper))
 

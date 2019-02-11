@@ -159,7 +159,7 @@ class AmendDividendsValidatorSpec extends UnitSpec{
              |}""".stripMargin
 
         )
-        val expectedData = List(DividendsEmptyRuleError)
+        val expectedData = List(EmptyOrNonMatchingBodyRuleError)
         val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(requestBody))
 
         val result = new AmendDividendsValidator().validate(requestRawData)
