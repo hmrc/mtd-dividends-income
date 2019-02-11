@@ -22,7 +22,7 @@ object DefinedFieldValidation {
 
   def validate(error: MtdError, fields: Option[_]*): List[MtdError] = {
 
-    if (!fields.exists(_.isDefined)) {
+    if (fields.forall(_.isEmpty)) {
       List(error)
     } else {
       noValidationErrors
