@@ -19,7 +19,7 @@ package v2.endpoints
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSRequest, WSResponse}
 import support.IntegrationBaseSpec
 import v2.fixtures.Fixtures.DividendsFixture
@@ -157,6 +157,32 @@ class DividendsISpec extends IntegrationBaseSpec {
         response.status shouldBe expectedStatus
         response.json shouldBe Json.toJson(expectedBody)
       }
+    }
+
+    "return response with status 400 (Bad Request) and empty body rule error" when {
+
+      val emptyRuleError: JsValue = Json.parse(
+        s"""
+           |{
+           |
+           |}
+      """.stripMargin)
+
+      s"empty body is supplied" in new Test {
+        override val nino: String = "AA123456A"
+        override val taxYear: String = "2018-19"
+
+        override def setupStubs(): StubMapping = {
+          AuditStub.audit()
+          AuthStub.authorised()
+          MtdIdLookupStub.ninoFound(nino)
+        }
+
+        val response: WSResponse = await(request().put(emptyRuleError))
+        response.status shouldBe Status.BAD_REQUEST
+        response.json shouldBe Json.toJson(ErrorWrapper(None, DividendsEmptyRuleError, None))
+      }
+
     }
   }
 

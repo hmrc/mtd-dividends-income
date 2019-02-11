@@ -34,3 +34,5 @@ object UkDividendsAmountFormatError extends MtdError("FORMAT_UK_DIVIDENDS", "UK 
 object OtherUkDividendsAmountFormatError extends MtdError("FORMAT_OTHER_DIVIDENDS", "Other UK Dividends format is invalid.")
 object TaxYearNotSpecifiedRuleError extends
   MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "Tax year not supported, because it precedes the earliest allowable tax year")
+object DividendsEmptyRuleError extends
+  MtdError("RULE_EMPTY_DIVIDENDS", "A non-empty dividends object must be supplied")

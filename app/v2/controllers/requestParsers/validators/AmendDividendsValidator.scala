@@ -23,7 +23,7 @@ import v2.models.requestData.AmendDividendsRequestRawData
 
 class AmendDividendsValidator extends Validator[AmendDividendsRequestRawData]{
 
-  private val validationSet = List(requestUrlParamsValidations, bodyFormatValidations, bvrValidations)
+  private val validationSet = List(requestUrlParamsValidations, bodyFormatValidations, emptyBodyValidation, bvrValidations)
 
   private def requestUrlParamsValidations: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
     List(
@@ -36,6 +36,13 @@ class AmendDividendsValidator extends Validator[AmendDividendsRequestRawData]{
     List(
       JsonFormatValidation.validate[Dividends](data.body),
       MtdTaxYearValidation.validate(data.taxYear, TaxYearNotSpecifiedRuleError)
+    )
+  }
+
+  private def emptyBodyValidation: AmendDividendsRequestRawData => List[List[MtdError]] = (data: AmendDividendsRequestRawData) => {
+    val dividends = data.body.json.as[Dividends]
+    List(
+      DefinedFieldValidation.validate(dividends.ukDividends, dividends.otherUkDividends)
     )
   }
 

@@ -149,6 +149,25 @@ class AmendDividendsValidatorSpec extends UnitSpec{
       }
     }
 
+    "return empty field rule error" when {
+      "an empty dividends object is supplied" in {
+        val nino = "AA123456A"
+        val taxYear = "2018-19"
+        val requestBody:JsValue = Json.parse(
+          s"""{
+             |
+             |}""".stripMargin
+
+        )
+        val expectedData = List(DividendsEmptyRuleError)
+        val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(requestBody))
+
+        val result = new AmendDividendsValidator().validate(requestRawData)
+
+        result shouldBe expectedData
+      }
+    }
+
     "return multiple invalid amount errors" when {
       "an invalid amount is supplied for both ukDividends and otherUkDividends" in {
         val nino = "AA123456A"
