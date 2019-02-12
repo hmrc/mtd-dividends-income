@@ -82,9 +82,6 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
           AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson)))
           .returns(Left(ErrorWrapper(None, BadRequestError, None)))
 
-        MockDividendsService.amend(amendDividendsRequest)
-          .returns(Future.successful(Right(correlationId)))
-
         val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
         status(result) shouldBe BAD_REQUEST
         header("X-CorrelationId", result) nonEmpty

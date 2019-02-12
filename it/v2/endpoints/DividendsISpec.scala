@@ -19,7 +19,7 @@ package v2.endpoints
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSRequest, WSResponse}
 import support.IntegrationBaseSpec
 import v2.fixtures.Fixtures.DividendsFixture
@@ -158,6 +158,53 @@ class DividendsISpec extends IntegrationBaseSpec {
         response.json shouldBe Json.toJson(expectedBody)
       }
     }
+
+    "return response with status 400 (Bad Request) and empty body rule error" when {
+
+      s"empty body is supplied" in new Test {
+        val emptyRuleError: JsValue = Json.parse(
+          s"""
+             |{
+             |
+           |}
+      """.stripMargin)
+
+        override val nino: String = "AA123456A"
+        override val taxYear: String = "2018-19"
+
+        override def setupStubs(): StubMapping = {
+          AuditStub.audit()
+          AuthStub.authorised()
+          MtdIdLookupStub.ninoFound(nino)
+        }
+
+        val response: WSResponse = await(request().put(emptyRuleError))
+        response.status shouldBe Status.BAD_REQUEST
+        response.json shouldBe Json.toJson(ErrorWrapper(None, EmptyOrNonMatchingBodyRuleError, None))
+      }
+
+      s"incorrect body is supplied" in new Test {
+        val requestBody:JsValue = Json.parse(
+          s"""{
+             | "someField" : 0,
+             | "someOtherField": 1
+             |}""".stripMargin
+        )
+
+        override val nino: String = "AA123456A"
+        override val taxYear: String = "2018-19"
+
+        override def setupStubs(): StubMapping = {
+          AuditStub.audit()
+          AuthStub.authorised()
+          MtdIdLookupStub.ninoFound(nino)
+        }
+
+        val response: WSResponse = await(request().put(requestBody))
+        response.status shouldBe Status.BAD_REQUEST
+        response.json shouldBe Json.toJson(ErrorWrapper(None, EmptyOrNonMatchingBodyRuleError, None))
+      }
+    }
   }
 
   "Calling the retrieve dividends endpoint" should {
@@ -233,7 +280,7 @@ class DividendsISpec extends IntegrationBaseSpec {
           MtdIdLookupStub.ninoFound(nino)
         }
 
-        val response = await(request().get())
+        val response: WSResponse = await(request().get())
         response.status shouldBe status
         response.json shouldBe Json.toJson(mtdError)
       }
