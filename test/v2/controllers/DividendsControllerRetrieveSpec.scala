@@ -77,7 +77,7 @@ class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
     }
 
     "return single error response with status 400" when {
-      "the request received failed the validation" in new Test() {
+      "the received request fails validation" in new Test() {
 
         MockRetrieveDividendsRequestDataParser.parse(
           RetrieveDividendsRequestRawData(nino, taxYear))
