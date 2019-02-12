@@ -35,4 +35,4 @@ object OtherUkDividendsAmountFormatError extends MtdError("FORMAT_OTHER_DIVIDEND
 object TaxYearNotSpecifiedRuleError extends
   MtdError("RULE_TAX_YEAR_NOT_SUPPORTED", "Tax year not supported, because it precedes the earliest allowable tax year")
 object EmptyOrNonMatchingBodyRuleError extends
-  MtdError("RULE_INCORRECT_OR_EMPTY_BODY_SUMBITTED", "An empty or non-matching body was submitted")
+  MtdError("RULE_INCORRECT_OR_EMPTY_BODY_SUBMITTED", "An empty or non-matching body was submitted")
