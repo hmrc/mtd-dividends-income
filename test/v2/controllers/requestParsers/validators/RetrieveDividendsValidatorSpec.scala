@@ -63,9 +63,9 @@ class RetrieveDividendsValidatorSpec extends UnitSpec{
     }
 
     "return minimum tax year rule error" when {
-      "tax year is supplied is before 2016-17" in {
+      "tax year is supplied is before 2017-18" in {
         val nino = "AA123456A"
-        val taxYear = "2015-16"
+        val taxYear = "2016-17"
         val expectedData = List(TaxYearNotSpecifiedRuleError)
         val requestRawData = RetrieveDividendsRequestRawData(nino, taxYear)
 

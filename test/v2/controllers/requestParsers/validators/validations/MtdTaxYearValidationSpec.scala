@@ -41,9 +41,9 @@ class MtdTaxYearValidationSpec extends UnitSpec with JsonErrorValidators {
     }
 
     "return the tax year not specified error" when {
-      "a tax year below 2017 is supplied" in {
+      "a tax year below 2018 is supplied" in {
 
-        val invalidTaxYear = "2015-16"
+        val invalidTaxYear = "2016-17"
         val validationResult = MtdTaxYearValidation.validate(invalidTaxYear, TaxYearNotSpecifiedRuleError)
         validationResult.isEmpty shouldBe false
         validationResult.length shouldBe 1

@@ -138,7 +138,7 @@ class DividendsISpec extends IntegrationBaseSpec {
     "return 400 (Bad Request)" when {
       amendRequestValidationErrorTest("AA1123A", "2017-18", Status.BAD_REQUEST, NinoFormatError)
       amendRequestValidationErrorTest("AA123456A", "2017-17", Status.BAD_REQUEST, TaxYearFormatError)
-      amendRequestValidationErrorTest("AA123456A", "2015-16", Status.BAD_REQUEST, TaxYearNotSpecifiedRuleError)
+      amendRequestValidationErrorTest("AA123456A", "2016-17", Status.BAD_REQUEST, TaxYearNotSpecifiedRuleError)
     }
 
     def amendRequestValidationErrorTest(requestNino: String, requestTaxYear: String, expectedStatus: Int, expectedBody: MtdError): Unit = {
@@ -265,7 +265,7 @@ class DividendsISpec extends IntegrationBaseSpec {
     "return 400 (Bad Request)" when {
       retrieveRequestValidationErrorTest("AA123", "2017-18", Status.BAD_REQUEST, NinoFormatError)
       retrieveRequestValidationErrorTest("AA123456B", "2017-19", Status.BAD_REQUEST, TaxYearFormatError)
-      retrieveRequestValidationErrorTest("AA123456B", "2015-16", Status.BAD_REQUEST, TaxYearNotSpecifiedRuleError)
+      retrieveRequestValidationErrorTest("AA123456B", "2016-17", Status.BAD_REQUEST, TaxYearNotSpecifiedRuleError)
     }
 
     def retrieveRequestValidationErrorTest(requestNino: String, requestTaxYear: String, status: Int, mtdError: MtdError): Unit = {
