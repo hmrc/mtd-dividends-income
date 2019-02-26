@@ -59,7 +59,8 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
         case Left(errorWrapper) =>
           val correlationId = getCorrelationId(errorWrapper)
           val result: Result = processError(errorWrapper).withHeaders("X-CorrelationId" -> correlationId)
-          auditSubmission(createAuditDetails(nino, taxYear, result.header.status, Some(amendDividendsRequest.model), correlationId, request.userDetails))
+          auditSubmission(createAuditDetails(nino, taxYear,
+            result.header.status, Some(amendDividendsRequest.model), correlationId, request.userDetails,  Some(errorWrapper)))
           result
       }
       case Left(errorWrapper)           =>
