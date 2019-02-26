@@ -16,31 +16,34 @@
 
 package v2.controllers
 
+import org.scalatest.OneInstancePerTest
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, Result}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetrieveDividendsRequestDataParser}
 import v2.mocks.services.{MockAuditService, MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
+import v2.models.Dividends
 import v2.models.audit._
 import v2.models.errors._
 import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
-class DividendsControllerAmendSpec extends ControllerBaseSpec {
+class DividendsControllerAmendSpec extends ControllerBaseSpec
+  with MockEnrolmentsAuthService
+  with MockMtdIdLookupService
+  with MockDividendsService
+  with MockAmendDividendsRequestDataParser
+  with MockRetrieveDividendsRequestDataParser
+  with MockAuditService
+  with OneInstancePerTest {
 
-  trait Test extends MockEnrolmentsAuthService
-    with MockMtdIdLookupService
-    with MockDividendsService
-    with MockAmendDividendsRequestDataParser
-    with MockRetrieveDividendsRequestDataParser
-    with MockAuditService {
+  trait Test {
 
     val hc = HeaderCarrier()
 
@@ -50,6 +53,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
       mockDividendsService,
       mockAmendDividendsRequestDataParser,
       mockRetrieveDividendsRequestDataParser,
+      mockAuditService,
       cc
     )
 
@@ -63,30 +67,30 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
   val amendDividendsRequest: AmendDividendsRequest =
     AmendDividendsRequest(Nino(nino), DesTaxYear(taxYear), DividendsFixture.dividendsModel)
 
-  val auditRequest = new AuditRequest(500.25, 100.25)
-  val auditResponse = new AuditResponse(List(AuditError(Status.BAD_REQUEST, "FORMAT_NINO")))
-  val auditDetail = new DividendsIncomeAuditDetail("Agent", Some("012345678"),
-    "MA123456D", "2017", auditRequest, "X-123", Some(auditResponse))
+  val auditRequest = new Dividends(Some(500.25), Some(100.25))
 
-  val auditEvent = new AuditEvent[DividendsIncomeAuditDetail]("updateDividendsAnnualSummary",
-    "update-dividends-annual-summary", auditDetail)
+  val auditDetail = new DividendsIncomeAuditDetail("Individual", None,
+    nino, taxYear, Some(auditRequest), "X-123")
 
   "amend" should {
     "return a successful response with X-CorrelationId in the header" when {
-    "the request received is valid" in new Test() {
+      "the request received is valid" in new Test {
 
-      MockAmendDividendsRequestDataParser.parse(
-        AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson)))
-        .returns(Right(amendDividendsRequest))
+        val auditEvent = new AuditEvent[DividendsIncomeAuditDetail]("updateDividendsAnnualSummary",
+          "update-dividends-annual-summary", auditDetail)
 
-      MockDividendsService.amend(amendDividendsRequest)
-        .returns(Future.successful(Right(correlationId)))
+        MockAmendDividendsRequestDataParser.parse(
+          AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson)))
+          .returns(Right(amendDividendsRequest))
 
-      MockedAuditService.auditEvent(auditEvent)
+        MockDividendsService.amend(amendDividendsRequest)
+          .returns(Future.successful(Right(correlationId)))
 
-      val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
-      status(result) shouldBe NO_CONTENT
-      header("X-CorrelationId", result) shouldBe Some(correlationId)
+        val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
+        status(result) shouldBe NO_CONTENT
+        header("X-CorrelationId", result) shouldBe Some(correlationId)
+
+        MockedAuditService.verifyAuditEvent(auditEvent).once
       }
     }
 
@@ -99,7 +103,17 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
 
         val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
         status(result) shouldBe BAD_REQUEST
-        header("X-CorrelationId", result) nonEmpty
+        header("X-CorrelationId", result) should not be empty
+
+        val auditResponse = new AuditResponse(Status.BAD_REQUEST, Seq(AuditError("INVALID_REQUEST")))
+
+        val auditErrorDetail = new DividendsIncomeAuditDetail("Individual", None,
+          nino, taxYear, None, header("X-CorrelationId", result).get, Some(auditResponse))
+
+        val auditEvent = new AuditEvent[DividendsIncomeAuditDetail]("updateDividendsAnnualSummary",
+          "update-dividends-annual-summary", auditErrorDetail)
+
+        MockedAuditService.verifyAuditEvent(auditEvent).once
       }
     }
 
@@ -150,6 +164,8 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec {
         status(response) shouldBe BAD_REQUEST
         contentAsJson(response) shouldBe Json.toJson(multipleErrorResponse)
         header("X-CorrelationId", response) shouldBe Some(correlationId)
+
+        fail
       }
     }
 

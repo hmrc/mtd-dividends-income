@@ -17,13 +17,14 @@
 package v2.models.audit
 
 import play.api.libs.json._
+import v2.models.Dividends
 
 case class DividendsIncomeAuditDetail(
                                        userType: String,
                                        agentReferenceNumber: Option[String],
                                        nino: String,
                                        taxYear: String,
-                                       request: AuditRequest,
+                                       request: Option[Dividends],
                                        `X-CorrelationId`: String,
                                        response: Option[AuditResponse] = None
                                      )
@@ -32,28 +33,19 @@ object DividendsIncomeAuditDetail {
   implicit val write: OWrites[DividendsIncomeAuditDetail] = Json.writes[DividendsIncomeAuditDetail]
 }
 
-case class AuditRequest(
-                         ukDividends: BigDecimal,
-                         otherUkDividends: BigDecimal
-                       )
-
-object AuditRequest {
-  implicit val format: OFormat[AuditRequest] = Json.format[AuditRequest]
-}
-
 case class AuditResponse(
-                        errors: Seq[AuditError]
+                          httpStatus: Int,
+                          errors: Seq[AuditError]
                         )
 
 object AuditResponse {
-  implicit val format:OFormat[AuditResponse] = Json.format[AuditResponse]
+  implicit val format: OFormat[AuditResponse] = Json.format[AuditResponse]
 }
 
 case class AuditError(
-                       httpStatus: Int,
                        errorCode: String
                      )
 
 object AuditError {
-  implicit val format:OFormat[AuditError] = Json.format[AuditError]
+  implicit val format: OFormat[AuditError] = Json.format[AuditError]
 }

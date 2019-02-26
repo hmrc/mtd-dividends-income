@@ -18,7 +18,14 @@ package v2.models.errors
 
 import play.api.libs.json.{JsValue, Json, Writes}
 
-case class ErrorWrapper(correlationId: Option[String], error: MtdError, errors: Option[Seq[MtdError]])
+case class ErrorWrapper(correlationId: Option[String], error: MtdError, errors: Option[Seq[MtdError]]) {
+
+  def allErrors: Seq[MtdError] = errors match {
+    case Some(es) => es
+    case None     => Seq(error)
+  }
+
+}
 
 object ErrorWrapper {
   implicit val writes: Writes[ErrorWrapper] = new Writes[ErrorWrapper] {
@@ -31,7 +38,7 @@ object ErrorWrapper {
 
       errorResponse.errors match {
         case Some(errors) if errors.nonEmpty => json + ("errors" -> Json.toJson(errors))
-        case _ => json
+        case _                               => json
       }
 
     }

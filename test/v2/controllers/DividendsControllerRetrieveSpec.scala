@@ -17,12 +17,12 @@
 package v2.controllers
 
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsJson, Result}
+import play.api.mvc.Result
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetrieveDividendsRequestDataParser}
-import v2.mocks.services.{MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
+import v2.mocks.services.{MockAuditService, MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.errors._
 import v2.models.outcomes.DesResponse
 import v2.models.requestData._
@@ -35,7 +35,9 @@ class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
     with MockMtdIdLookupService
     with MockDividendsService
     with MockAmendDividendsRequestDataParser
-    with MockRetrieveDividendsRequestDataParser {
+    with MockRetrieveDividendsRequestDataParser
+    with MockAuditService {
+
 
     val hc = HeaderCarrier()
 
@@ -45,6 +47,7 @@ class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
       mockDividendsService,
       mockAmendDividendsRequestDataParser,
       mockRetrieveDividendsRequestDataParser,
+      mockAuditService,
       cc
     )
 
@@ -85,7 +88,7 @@ class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
 
         val result: Future[Result] = controller.retrieve(nino, taxYear)(fakeGetRequest)
         status(result) shouldBe BAD_REQUEST
-        header("X-CorrelationId", result) nonEmpty
+        header("X-CorrelationId", result) should not be empty
       }
     }
 

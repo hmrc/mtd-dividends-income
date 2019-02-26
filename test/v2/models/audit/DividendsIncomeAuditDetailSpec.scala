@@ -19,6 +19,7 @@ package v2.models.audit
 import play.api.http.Status
 import play.api.libs.json.Json
 import support.UnitSpec
+import v2.models.Dividends
 
 class DividendsIncomeAuditDetailSpec extends UnitSpec {
 
@@ -40,10 +41,10 @@ class DividendsIncomeAuditDetailSpec extends UnitSpec {
             | }
           """.stripMargin)
 
-        val auditRequest = new AuditRequest(500.25, 100.25)
+        val auditRequest = new Dividends(Some(500.25), Some(100.25))
 
         val auditDetail = new DividendsIncomeAuditDetail("Organisation", None,
-        "MA123456D", "2017", auditRequest, "X-123")
+        "MA123456D", "2017", Some(auditRequest), "X-123")
 
         Json.toJson(auditDetail) shouldBe json
       }
@@ -75,11 +76,11 @@ class DividendsIncomeAuditDetailSpec extends UnitSpec {
             | }
           """.stripMargin)
 
-        val auditRequest = new AuditRequest(500.25, 100.25)
-        val auditResponse = new AuditResponse(List(AuditError(Status.BAD_REQUEST, "FORMAT_NINO")))
+        val auditRequest = new Dividends(Some(500.25), Some(100.25))
+        val auditResponse = new AuditResponse(Status.BAD_REQUEST, Seq(AuditError("FORMAT_NINO")))
 
         val auditDetail = new DividendsIncomeAuditDetail("Agent", Some("012345678"),
-          "MA123456D", "2017", auditRequest, "X-123", Some(auditResponse))
+          "MA123456D", "2017", Some(auditRequest), "X-123", Some(auditResponse))
 
         Json.toJson(auditDetail) shouldBe json
       }

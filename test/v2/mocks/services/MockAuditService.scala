@@ -21,7 +21,6 @@ import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import v2.models.audit.AuditEvent
 import v2.services.AuditService
 
@@ -29,14 +28,14 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait MockAuditService extends MockFactory {
 
-  val mockAuditService: AuditService = mock[AuditService]
+  val mockAuditService: AuditService = stub[AuditService]
 
   object MockedAuditService {
-    def auditEvent[T](event: AuditEvent[T])(implicit ec: ExecutionContext): CallHandler[Future[AuditResult]] = {
+    def verifyAuditEvent[T](event: AuditEvent[T])(implicit ec: ExecutionContext): CallHandler[Future[AuditResult]] = {
       (mockAuditService.auditEvent(_: AuditEvent[T])(_: HeaderCarrier, _: ExecutionContext, _: Writes[T]))
-        .expects(event, *, *, *).returns(Future {
-        Success
-      })
+        .verify(event, *, *, *)
+        .returning(Future.successful(AuditResult.Success))
     }
   }
+
 }

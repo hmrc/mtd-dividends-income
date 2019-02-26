@@ -24,15 +24,15 @@ object Fixtures {
   object DividendsFixture {
     val mtdFormatJson: JsValue = Json.parse(
       s"""{
-         |  "ukDividends": 10000.00,
-         |  "otherUkDividends": 10000.00
+         |  "ukDividends": 500.25,
+         |  "otherUkDividends": 100.25
          |}""".stripMargin
 
     )
 
     val dividendsModel: Dividends = Dividends(
-      ukDividends = Some(10000.00),
-      otherUkDividends = Some(10000.00))
+      ukDividends = Some(500.25),
+      otherUkDividends = Some(100.25))
 
 
   }
