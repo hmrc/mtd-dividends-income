@@ -65,9 +65,9 @@ class DividendsIncomeAuditDetailSpec extends UnitSpec {
             |         "otherUkDividends": 100.25
             |     },
             |     "response": {
+            |       "httpStatus": 400,
             |       "errors": [
             |         {
-            |          "httpStatus": 400,
             |          "errorCode": "FORMAT_NINO"
             |        }
             |       ]
