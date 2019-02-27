@@ -14,27 +14,10 @@
  * limitations under the License.
  */
 
-package v2.fixtures
+package v2.models.audit
 
-import play.api.libs.json.{JsValue, Json}
-import v2.models.Dividends
-
-object Fixtures {
-
-  object DividendsFixture {
-    val mtdFormatJson: JsValue = Json.parse(
-      s"""{
-         |  "ukDividends": 500.25,
-         |  "otherUkDividends": 100.25
-         |}""".stripMargin
-
-    )
-
-    val dividendsModel: Dividends = Dividends(
-      ukDividends = Some(500.25),
-      otherUkDividends = Some(100.25))
-
-
-  }
-
-}
+case class AuditEvent[T](
+                          auditType: String,
+                          transactionName: String,
+                          detail: T
+                        )
