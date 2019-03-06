@@ -24,7 +24,7 @@ case class DividendsIncomeAuditDetail(
                                        agentReferenceNumber: Option[String],
                                        nino: String,
                                        taxYear: String,
-                                       request: Option[Dividends],
+                                       request: JsValue,
                                        `X-CorrelationId`: String,
                                        response: Option[AuditResponse] = None
                                      )
