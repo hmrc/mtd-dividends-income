@@ -25,11 +25,11 @@ import play.api.mvc._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import v2.controllers.requestParsers.{AmendDividendsRequestDataParser, RetrieveDividendsRequestDataParser}
+import v2.models.audit
 import v2.models.audit._
 import v2.models.auth.UserDetails
 import v2.models.errors._
 import v2.models.requestData.{AmendDividendsRequestRawData, RetrieveDividendsRequestRawData}
-import v2.models.{Dividends, audit}
 import v2.services.{AuditService, DividendsService, EnrolmentsAuthService, MtdIdLookupService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -52,7 +52,7 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
     amendDividendsRequestDataParser.parse(AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(request.body))) match {
       case Right(amendDividendsRequest) => dividendsService.amend(amendDividendsRequest).map {
         case Right(correlationId) =>
-          auditSubmission(createAuditDetails(nino, taxYear, NO_CONTENT, Some(amendDividendsRequest.model)
+          auditSubmission(createAuditDetails(nino, taxYear, NO_CONTENT, request.request.body
             , correlationId, request.userDetails))
           logger.info(s"[DividendsController][amend] - Success response received with CorrelationId: $correlationId")
           NoContent.withHeaders("X-CorrelationId" -> correlationId)
@@ -60,13 +60,13 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
           val correlationId = getCorrelationId(errorWrapper)
           val result: Result = processError(errorWrapper).withHeaders("X-CorrelationId" -> correlationId)
           auditSubmission(createAuditDetails(nino, taxYear,
-            result.header.status, Some(amendDividendsRequest.model), correlationId, request.userDetails,  Some(errorWrapper)))
+            result.header.status, request.request.body, correlationId, request.userDetails,  Some(errorWrapper)))
           result
       }
       case Left(errorWrapper)           =>
         val correlationId = getCorrelationId(errorWrapper)
         val result: Result = processError(errorWrapper).withHeaders("X-CorrelationId" -> correlationId)
-        auditSubmission(createAuditDetails(nino, taxYear, result.header.status, None, correlationId, request.userDetails, Some(errorWrapper)))
+        auditSubmission(createAuditDetails(nino, taxYear, result.header.status, request.request.body, correlationId, request.userDetails, Some(errorWrapper)))
         Future.successful(result)
     }
   }
@@ -117,7 +117,7 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
   private def createAuditDetails(nino: String,
                                  taxYear: String,
                                  statusCode: Int,
-                                 dividends: Option[Dividends] = None,
+                                 dividends: JsValue,
                                  correlationId: String,
                                  userDetails: UserDetails,
                                  errorWrapper: Option[ErrorWrapper] = None) = {

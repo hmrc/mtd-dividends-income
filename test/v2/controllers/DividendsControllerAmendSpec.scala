@@ -85,7 +85,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
         header("X-CorrelationId", result) shouldBe Some(correlationId)
 
         val auditDetail = new DividendsIncomeAuditDetail("Individual", None,
-          nino, taxYear, Some(auditRequest), correlationId)
+          nino, taxYear, DividendsFixture.mtdFormatJson, correlationId)
 
         val auditEvent = new AuditEvent[DividendsIncomeAuditDetail]("updateDividendsAnnualSummary",
           "update-dividends-annual-summary", auditDetail)
@@ -106,7 +106,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
         header("X-CorrelationId", result) should not be empty
 
         MockedAuditService.verifyAuditEvent(auditEventFor(NinoFormatError, Status.BAD_REQUEST,
-          header("X-CorrelationId", result).get, None)).once
+          header("X-CorrelationId", result).get, DividendsFixture.mtdFormatJson)).once
       }
     }
 
@@ -161,7 +161,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
         val auditResponse = new AuditResponse(Status.BAD_REQUEST, Seq(AuditError("FORMAT_NINO"), AuditError("FORMAT_TAX_YEAR")))
 
         val auditErrorDetail = new DividendsIncomeAuditDetail("Individual", None,
-          nino, taxYear, None, correlationId, Some(auditResponse))
+          nino, taxYear, DividendsFixture.mtdFormatJson, correlationId, Some(auditResponse))
 
         val auditEvent = new AuditEvent[DividendsIncomeAuditDetail]("updateDividendsAnnualSummary",
           "update-dividends-annual-summary", auditErrorDetail)
@@ -186,7 +186,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
       contentAsJson(response) shouldBe Json.toJson(error)
       header("X-CorrelationId", response) shouldBe Some(correlationId)
 
-      MockedAuditService.verifyAuditEvent(auditEventFor(error, expectedStatus, correlationId, None)).once
+      MockedAuditService.verifyAuditEvent(auditEventFor(error, expectedStatus, correlationId, DividendsFixture.mtdFormatJson)).once
     }
   }
 
@@ -208,13 +208,13 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
       contentAsJson(response) shouldBe Json.toJson(error)
       header("X-CorrelationId", response) shouldBe Some(correlationId)
 
-      MockedAuditService.verifyAuditEvent(auditEventFor(error, expectedStatus, correlationId, Some(auditRequest))).once
+      MockedAuditService.verifyAuditEvent(auditEventFor(error, expectedStatus, correlationId, DividendsFixture.mtdFormatJson)).once
     }
   }
 
   private def auditEventFor(error: MtdError, expectedStatus: Int,
                             correlationId: String,
-                            request: Option[Dividends]) = {
+                            request: JsValue) = {
     val auditResponse = new AuditResponse(expectedStatus, Seq(AuditError(s"${error.code}")))
 
     val auditErrorDetail = new DividendsIncomeAuditDetail("Individual", None,
