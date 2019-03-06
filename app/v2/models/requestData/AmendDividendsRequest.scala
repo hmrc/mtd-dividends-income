@@ -20,4 +20,4 @@ import uk.gov.hmrc.domain.Nino
 import v2.models.Dividends
 
 
-case class AmendDividendsRequest(nino: Nino, desTaxYear: String, model: Dividends)
+case class AmendDividendsRequest(nino: Nino, desTaxYear: DesTaxYear, model: Dividends)

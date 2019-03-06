@@ -19,10 +19,11 @@ package v2.stubs
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status.OK
 import support.WireMockMethods
+import v2.models.requestData.DesTaxYear
 
 object DesStub extends WireMockMethods {
 
-  private def dividendsIncomeUrl(nino: String, taxYear: String): String =
+  private def dividendsIncomeUrl(nino: String, taxYear: DesTaxYear): String =
     s"/income-tax/nino/$nino/income-source/dividends/annual/$taxYear"
 
   private val amendResponseBody =
@@ -38,22 +39,22 @@ object DesStub extends WireMockMethods {
       |}
     """.stripMargin
 
-  def amendSuccess(nino: String, taxYear: String): StubMapping = {
+  def amendSuccess(nino: String, taxYear: DesTaxYear): StubMapping = {
     when(method = POST, uri = dividendsIncomeUrl(nino, taxYear))
       .thenReturn(status = OK, amendResponseBody)
   }
 
-  def amendError(nino: String, taxYear: String, errorStatus: Int, errorBody: String): StubMapping = {
+  def amendError(nino: String, taxYear: DesTaxYear, errorStatus: Int, errorBody: String): StubMapping = {
     when(method = POST, uri = dividendsIncomeUrl(nino, taxYear))
     .thenReturn(status = errorStatus, errorBody)
   }
 
-  def retrieveSuccess(nino: String, taxYear: String): StubMapping = {
+  def retrieveSuccess(nino: String, taxYear: DesTaxYear): StubMapping = {
     when(method = GET, uri = dividendsIncomeUrl(nino, taxYear))
       .thenReturn(status = OK, retrieveResponseBody)
   }
 
-  def retrieveError(nino: String, taxYear: String, errorStatus: Int, errorBody: String): StubMapping = {
+  def retrieveError(nino: String, taxYear: DesTaxYear, errorStatus: Int, errorBody: String): StubMapping = {
     when(method = GET, uri = dividendsIncomeUrl(nino, taxYear))
       .thenReturn(status = errorStatus, errorBody)
   }

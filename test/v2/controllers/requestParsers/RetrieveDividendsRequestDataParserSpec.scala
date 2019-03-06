@@ -34,7 +34,7 @@ class RetrieveDividendsRequestDataParserSpec extends UnitSpec{
         val nino = "AA123456A"
         val taxYear = "2017-18"
         val inputRawRequest = RetrieveDividendsRequestRawData(nino, taxYear)
-        val expectedResult = RetrieveDividendsRequest(Nino(nino), DesTaxYear(taxYear))
+        val expectedResult = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
 
         MockRetrieveDividendsValidator.validate(inputRawRequest).returns(Nil)
 

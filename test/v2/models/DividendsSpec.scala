@@ -64,8 +64,8 @@ class DividendsSpec extends UnitSpec with JsonErrorValidators{
   "DesTaxYear" should {
     "generate tax year" when {
       "given a year" in {
-        val year = DesTaxYear(taxYear)
-        year shouldBe "2018"
+        val year = DesTaxYear.fromMtd(taxYear)
+        year.value shouldBe "2018"
       }
     }
   }

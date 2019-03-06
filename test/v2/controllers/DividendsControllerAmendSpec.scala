@@ -65,7 +65,7 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
   val taxYear = "2017-18"
   val correlationId = "X-123"
   val amendDividendsRequest: AmendDividendsRequest =
-    AmendDividendsRequest(Nino(nino), DesTaxYear(taxYear), DividendsFixture.dividendsModel)
+    AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
 
   val auditRequest = new Dividends(Some(500.25), Some(100.25))
 

@@ -16,6 +16,20 @@
 
 package v2.models.requestData
 
+/**
+  * Represents a tax year as DES understands it
+  *
+  * @param value the tax year string in the format YYYY (where 2018 represents 2017-18)
+  */
+case class DesTaxYear(value: String) extends AnyVal {
+  override def toString: String = value
+}
+
 object DesTaxYear {
-  def apply(taxYear: String): String = taxYear.take(2) + taxYear.drop(5)
+
+  /**
+    * @param taxYear tax year in MTD format YYYY-YY (e.g. 2017-18)
+    */
+  def fromMtd(taxYear: String): DesTaxYear = DesTaxYear(taxYear.take(2) + taxYear.drop(5))
+
 }
