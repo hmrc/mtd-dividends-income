@@ -48,7 +48,7 @@ class DesConnectorSpec extends ConnectorSpec {
         val nino = "AA123456A"
         val taxYear = "2018-19"
         val desTaxYear = "2019"
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), desTaxYear, DividendsFixture.dividendsModel)
+        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
         val transactionReference = "000000000001"
         val expectedResult: DesResponse[String] = DesResponse[String](correlationId, transactionReference)
 
@@ -70,11 +70,11 @@ class DesConnectorSpec extends ConnectorSpec {
         val taxYear = "2018-19"
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
-          s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear(taxYear)}",
+          s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}",
           DividendsFixture.dividendsModel)
           .returns(Future.successful(Left(expectedDesResponse)))
 
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(taxYear), DividendsFixture.dividendsModel)
+        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
 
         val result: AmendDividendsConnectorOutcome = await(connector.amend(amendDividendsRequest))
 
@@ -90,11 +90,11 @@ class DesConnectorSpec extends ConnectorSpec {
         val taxYear = "2018-19"
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
-          s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear(taxYear)}",
+          s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}",
           DividendsFixture.dividendsModel)
           .returns(Future.successful(Left(expectedDesResponse)))
 
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(taxYear), DividendsFixture.dividendsModel)
+        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
 
         val result: AmendDividendsConnectorOutcome = await(connector.amend(amendDividendsRequest))
 
@@ -117,7 +117,7 @@ class DesConnectorSpec extends ConnectorSpec {
           s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear")
           .returns(Future.successful(Right(expectedResult)))
 
-        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), desTaxYear)
+        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
 
         val result = await(connector.retrieve(retrieveDividends))
 
@@ -133,10 +133,10 @@ class DesConnectorSpec extends ConnectorSpec {
         val taxYear = "1111-12"
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
-          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear(taxYear)}")
+          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}")
           .returns(Future.successful(Left(expectedDesResponse)))
 
-        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), DesTaxYear(taxYear))
+        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
         val result = await(connector.retrieve(retrieveDividends))
 
         result shouldBe Left(expectedDesResponse)
@@ -151,11 +151,11 @@ class DesConnectorSpec extends ConnectorSpec {
         val taxYear = "1111-12"
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
-          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear(taxYear)}")
+          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}")
           .returns(Future.successful(Left(expectedDesResponse)))
 
 
-        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), DesTaxYear(taxYear))
+        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
         val result = await(connector.retrieve(retrieveDividends))
 
         result shouldBe Left(expectedDesResponse)

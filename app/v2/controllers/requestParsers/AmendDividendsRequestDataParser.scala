@@ -27,7 +27,7 @@ class AmendDividendsRequestDataParser @Inject()(validator: AmendDividendsValidat
 
   def parse(data: AmendDividendsRequestRawData): Either[ErrorWrapper, AmendDividendsRequest] = {
     validator.validate(data) match {
-      case Nil => Right(AmendDividendsRequest(Nino(data.nino), DesTaxYear(data.taxYear), data.body.json.as[Dividends]))
+      case Nil => Right(AmendDividendsRequest(Nino(data.nino), DesTaxYear.fromMtd(data.taxYear), data.body.json.as[Dividends]))
       case err :: Nil => Left(ErrorWrapper(None, err, None))
       case errs => Left(ErrorWrapper(None, BadRequestError, Some(errs)))
     }

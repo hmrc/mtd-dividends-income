@@ -58,7 +58,7 @@ class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
   val nino = "AA123456A"
   val taxYear = "2017-18"
   val correlationId = "X-123"
-  val retrieveDividendsRequest: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear(taxYear))
+  val retrieveDividendsRequest: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
 
   "retrieve" should {
     "return successful response with header X-CorrelationId and body with dividends" when {
@@ -153,7 +153,7 @@ class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
     s"a ${error.code} error is returned from the service" in new Test {
 
       val retrieveDividendsRequestData = RetrieveDividendsRequestRawData(nino, taxYear)
-      val retrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear(taxYear))
+      val retrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
 
       MockRetrieveDividendsRequestDataParser.parse(retrieveDividendsRequestData)
         .returns(Right(retrieveDividendsRequest))

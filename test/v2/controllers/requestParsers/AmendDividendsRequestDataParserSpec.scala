@@ -22,7 +22,7 @@ import uk.gov.hmrc.domain.Nino
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.validators.MockAmendDividendsValidator
 import v2.models.errors.{BadRequestError, ErrorWrapper, NinoFormatError, TaxYearFormatError}
-import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData}
+import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
 
 class AmendDividendsRequestDataParserSpec extends UnitSpec{
 
@@ -37,7 +37,7 @@ class AmendDividendsRequestDataParserSpec extends UnitSpec{
         val nino = "AA123456A"
         val taxYear = "2018-19"
         val desTaxYear = "2019"
-        val expectedData = AmendDividendsRequest(Nino(nino), desTaxYear, DividendsFixture.dividendsModel)
+        val expectedData = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
         val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
 
         MockAmendDividendsValidator.validate(requestRawData).returns(Nil)

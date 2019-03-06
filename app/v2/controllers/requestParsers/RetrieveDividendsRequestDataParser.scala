@@ -26,7 +26,7 @@ class RetrieveDividendsRequestDataParser @Inject()(validator: RetrieveDividendsV
 
   def parse(data: RetrieveDividendsRequestRawData): Either[ErrorWrapper, RetrieveDividendsRequest] = {
     validator.validate(data) match {
-      case Nil => Right(RetrieveDividendsRequest(Nino(data.nino), DesTaxYear(data.taxYear)))
+      case Nil => Right(RetrieveDividendsRequest(Nino(data.nino), DesTaxYear.fromMtd(data.taxYear)))
       case err :: Nil => Left(ErrorWrapper(None, err, None))
       case errs => Left(ErrorWrapper(None, BadRequestError, Some(errs)))
     }

@@ -55,7 +55,7 @@ class DividendsISpec extends IntegrationBaseSpec {
           AuditStub.audit()
           AuthStub.authorised()
           MtdIdLookupStub.ninoFound(nino)
-          DesStub.amendSuccess(nino, DesTaxYear(taxYear))
+          DesStub.amendSuccess(nino, DesTaxYear.fromMtd(taxYear))
         }
 
         val response: WSResponse = await(request().put(DividendsFixture.mtdFormatJson))
@@ -107,7 +107,7 @@ class DividendsISpec extends IntegrationBaseSpec {
           AuditStub.audit()
           AuthStub.authorised()
           MtdIdLookupStub.ninoFound(nino)
-          DesStub.amendError(nino, DesTaxYear(taxYear), BAD_REQUEST, multipleErrors)
+          DesStub.amendError(nino, DesTaxYear.fromMtd(taxYear), BAD_REQUEST, multipleErrors)
         }
 
         val response: WSResponse = await(request().put(DividendsFixture.mtdFormatJson))
@@ -126,7 +126,7 @@ class DividendsISpec extends IntegrationBaseSpec {
           AuditStub.audit()
           AuthStub.authorised()
           MtdIdLookupStub.ninoFound(nino)
-          DesStub.amendError(nino, DesTaxYear(taxYear), desStatus, errorBody(desCode))
+          DesStub.amendError(nino, DesTaxYear.fromMtd(taxYear), desStatus, errorBody(desCode))
         }
 
         val response: WSResponse = await(request().put(DividendsFixture.mtdFormatJson))
@@ -218,7 +218,7 @@ class DividendsISpec extends IntegrationBaseSpec {
           AuditStub.audit()
           AuthStub.authorised()
           MtdIdLookupStub.ninoFound(nino)
-          DesStub.retrieveSuccess(nino, DesTaxYear(taxYear))
+          DesStub.retrieveSuccess(nino, DesTaxYear.fromMtd(taxYear))
         }
 
         val response: WSResponse = await(request().get())
@@ -253,7 +253,7 @@ class DividendsISpec extends IntegrationBaseSpec {
           AuditStub.audit()
           AuthStub.authorised()
           MtdIdLookupStub.ninoFound(nino)
-          DesStub.retrieveError(nino, DesTaxYear(taxYear), Status.BAD_REQUEST, errorBody(errorCode))
+          DesStub.retrieveError(nino, DesTaxYear.fromMtd(taxYear), Status.BAD_REQUEST, errorBody(errorCode))
         }
 
         val response: WSResponse = await(request().get())
