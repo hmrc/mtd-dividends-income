@@ -16,6 +16,4 @@
 
 package v2.models.requestData
 
-trait InputData {
-
-}
+trait RawData

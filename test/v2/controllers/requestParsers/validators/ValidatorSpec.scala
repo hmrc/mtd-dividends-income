@@ -19,7 +19,7 @@ package v2.controllers.requestParsers.validators
 import org.scalamock.scalatest.MockFactory
 import support.UnitSpec
 import v2.models.errors.MtdError
-import v2.models.requestData.InputData
+import v2.models.requestData.RawData
 
 class ValidatorSpec extends UnitSpec with MockFactory {
 
@@ -35,7 +35,7 @@ class ValidatorSpec extends UnitSpec with MockFactory {
         val levelOneValidationOne = new MockFunctionObject("Level: 1    Validation 1")
         val levelOneValidationTwo = new MockFunctionObject("Level: 1    Validation 2")
 
-        def levelOneValidations: TestInputData => List[List[MtdError]] = (data: TestInputData) => {
+        def levelOneValidations: TestRawData => List[List[MtdError]] = (data: TestRawData) => {
           List(
             levelOneValidationOne.validate(false, None),
             levelOneValidationTwo.validate(false, None)
@@ -44,7 +44,7 @@ class ValidatorSpec extends UnitSpec with MockFactory {
 
         val validationSet = List(levelOneValidations)
 
-        val inputData = TestInputData("ABCDEF", "12345")
+        val inputData = TestRawData("ABCDEF", "12345")
         val result = validator.run(validationSet, inputData)
         result.isEmpty shouldBe true
         levelOneValidationOne.called shouldBe 1
@@ -60,7 +60,7 @@ class ValidatorSpec extends UnitSpec with MockFactory {
         val levelOneValidationTwo = new MockFunctionObject("Level: 1    Validation 2")
         val mockError = MtdError("MOCK", "SOME ERROR")
 
-        def levelOneValidations: TestInputData => List[List[MtdError]] = (data: TestInputData) => {
+        def levelOneValidations: TestRawData => List[List[MtdError]] = (data: TestRawData) => {
           List(
             levelOneValidationOne.validate(false, None),
             levelOneValidationTwo.validate(true, Some(mockError))
@@ -69,7 +69,7 @@ class ValidatorSpec extends UnitSpec with MockFactory {
 
         val validationSet = List(levelOneValidations)
 
-        val inputData = TestInputData("ABCDEF", "12345")
+        val inputData = TestRawData("ABCDEF", "12345")
         val result = validator.run(validationSet, inputData)
         result.isEmpty shouldBe false
         result.size shouldBe 1
@@ -88,14 +88,14 @@ class ValidatorSpec extends UnitSpec with MockFactory {
         val levelTwoValidationTwo = new MockFunctionObject("Level: 2    Validation 2")
         val mockError = MtdError("MOCK", "SOME ERROR ON LEVEL 2")
 
-        def levelOneValidations: TestInputData => List[List[MtdError]] = (data: TestInputData) => {
+        def levelOneValidations: TestRawData => List[List[MtdError]] = (data: TestRawData) => {
           List(
             levelOneValidationOne.validate(false, None),
             levelOneValidationTwo.validate(false, None)
           )
         }
 
-        def levelTwoValidations: TestInputData => List[List[MtdError]] = (data: TestInputData) => {
+        def levelTwoValidations: TestRawData => List[List[MtdError]] = (data: TestRawData) => {
           List(
             levelTwoValidationOne.validate(false, None),
             levelTwoValidationTwo.validate(true, Some(mockError))
@@ -104,7 +104,7 @@ class ValidatorSpec extends UnitSpec with MockFactory {
 
         val validationSet = List(levelOneValidations, levelTwoValidations)
 
-        val inputData = TestInputData("ABCDEF", "12345")
+        val inputData = TestRawData("ABCDEF", "12345")
         val result = validator.run(validationSet, inputData)
         result.isEmpty shouldBe false
         result.size shouldBe 1
@@ -131,11 +131,11 @@ class MockFunctionObject(name: String) {
 }
 
 
-private case class TestInputData(fieldOne: String, fieldTwo: String) extends InputData
+private case class TestRawData(fieldOne: String, fieldTwo: String) extends RawData
 
 // Create a Validator based off the trait to be able to test it
-private class TestValidator extends Validator[TestInputData] {
-  override def validate(data: TestInputData): List[MtdError] = {
+private class TestValidator extends Validator[TestRawData] {
+  override def validate(data: TestRawData): List[MtdError] = {
     run(List(), data) match {
       case Nil => List()
       case err :: Nil => List(err)

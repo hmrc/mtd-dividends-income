@@ -17,9 +17,9 @@
 package v2.controllers.requestParsers.validators
 
 import v2.models.errors.MtdError
-import v2.models.requestData.InputData
+import v2.models.requestData.RawData
 
-trait Validator[A <: InputData] {
+trait Validator[A <: RawData] {
 
 
   type ValidationLevel[T] = T => List[MtdError]
