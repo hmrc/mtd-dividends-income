@@ -185,7 +185,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |{
             |	"failures" : [
             |    {
-            |      "code": "NOT_FOUND_INCOME_SOURCE",
+            |      "code": "NOT_FOUND_PERIOD",
             |      "reason": "some reason"
             |    },
             |    {
@@ -196,7 +196,7 @@ class AmendDividendsHttpParserSpec extends UnitSpec {
             |}
           """.stripMargin)
         val expected = DesResponse(correlationId,
-          MultipleErrors(Seq(MtdError("NOT_FOUND_INCOME_SOURCE", "some reason"), MtdError("MISSING_GIFT_AID_AMOUNT", "some reason"))))
+          MultipleErrors(Seq(MtdError("NOT_FOUND_PERIOD", "some reason"), MtdError("MISSING_GIFT_AID_AMOUNT", "some reason"))))
 
         val httpResponse = HttpResponse(FORBIDDEN, Some(errorResponseJson), Map("CorrelationId" -> Seq(correlationId)))
         val result = AmendDividendsHttpParser.amendHttpReads.read(POST, "/test", httpResponse)

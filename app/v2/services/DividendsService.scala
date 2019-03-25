@@ -39,7 +39,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
         val mtdErrors = errors.map(error => desErrorToMtdError(error.code))
         if (mtdErrors.contains(DownstreamError)) {
           logger.info(s"[DividendsIncomeService] [amend] [CorrelationId - $correlationId]" +
-            s" - downstream returned INVALID_IDTYPE or NOT_FOUND_INCOME_SOURCE. Revert to ISE")
+            s" - downstream returned INVALID_IDTYPE or NOT_FOUND_PERIOD. Revert to ISE")
           Left(ErrorWrapper(Some(correlationId), DownstreamError, None))
         } else {
           Left(ErrorWrapper(Some(correlationId), BadRequestError, Some(mtdErrors)))
@@ -58,7 +58,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
         val mtdErrors = errors.map(error => desErrorToMtdError(error.code))
         if (mtdErrors.contains(DownstreamError)) {
           logger.info(s"[DividendsIncomeService] [retrieve] [CorrelationId - $correlationId]" +
-            s" - downstream returned INVALID_IDTYPE, INVALID_INCOME_SOURCE or NOT_FOUND_INCOME_SOURCE. Revert to ISE")
+            s" - downstream returned INVALID_IDTYPE, INVALID_INCOME_SOURCE or NOT_FOUND_PERIOD. Revert to ISE")
           Left(ErrorWrapper(Some(correlationId), DownstreamError, None))
         } else {
           Left(ErrorWrapper(Some(correlationId), BadRequestError, Some(mtdErrors)))
@@ -74,8 +74,8 @@ class DividendsService @Inject()(desConnector: DesConnector) {
     "INVALID_TAXYEAR" -> TaxYearFormatError,
     "INVALID_PAYLOAD" -> BadRequestError,
     "INVALID_INCOME_SOURCE" -> DownstreamError,
-    "NOT_FOUND_PERIOD" -> NotFoundError,
-    "NOT_FOUND_INCOME_SOURCE" -> DownstreamError,
+    "NOT_FOUND_PERIOD" -> DownstreamError,
+    "NOT_FOUND_INCOME_SOURCE" -> NotFoundError,
     "MISSING_GIFT_AID_AMOUNT" -> DownstreamError,
     "MISSING_CHARITIES_NAME_INVESTMENT" -> DownstreamError,
     "MISSING_INVESTMENT_AMOUNT" -> DownstreamError,
