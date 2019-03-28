@@ -116,7 +116,6 @@ class AmendDividendsServiceSpec extends ServiceSpec {
       "INVALID_TYPE" -> DownstreamError,
       "INVALID_TAXYEAR" -> TaxYearFormatError,
       "INVALID_PAYLOAD" -> BadRequestError,
-      "NOT_FOUND_PERIOD" -> DownstreamError,
       "MISSING_CHARITIES_NAME_GIFT_AID" -> DownstreamError,
       "MISSING_GIFT_AID_AMOUNT" -> DownstreamError,
       "MISSING_CHARITIES_NAME_INVESTMENT" -> DownstreamError,
