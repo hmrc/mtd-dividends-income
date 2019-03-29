@@ -236,13 +236,13 @@ class DividendsISpec extends IntegrationBaseSpec {
     "return 500 (Internal Server Error)" when {
       retrieveErrorTest(Status.BAD_REQUEST, "INVALID_TYPE", Status.INTERNAL_SERVER_ERROR, DownstreamError)
       retrieveErrorTest(Status.BAD_REQUEST, "INVALID_INCOME_SOURCE", Status.INTERNAL_SERVER_ERROR, DownstreamError)
-      retrieveErrorTest(Status.NOT_FOUND, "NOT_FOUND_INCOME_SOURCE", Status.INTERNAL_SERVER_ERROR, DownstreamError)
       retrieveErrorTest(Status.SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE", Status.INTERNAL_SERVER_ERROR, DownstreamError)
       retrieveErrorTest(Status.INTERNAL_SERVER_ERROR, "SERVER_ERROR", Status.INTERNAL_SERVER_ERROR, DownstreamError)
     }
 
     "return 404 (Not Found)" when {
-      retrieveErrorTest(Status.NOT_FOUND, "NOT_FOUND_PERIOD", Status.NOT_FOUND, NotFoundError )
+      retrieveErrorTest(Status.NOT_FOUND, "NOT_FOUND_PERIOD", Status.NOT_FOUND, NotFoundError)
+      retrieveErrorTest(Status.NOT_FOUND, "NOT_FOUND_INCOME_SOURCE", Status.NOT_FOUND, NotFoundError)
     }
 
     def retrieveErrorTest(desStatus: Int, errorCode: String, status: Int, mtdError: MtdError): Unit = {

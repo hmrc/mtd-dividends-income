@@ -73,6 +73,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
     "INVALID_TYPE" -> DownstreamError,
     "INVALID_TAXYEAR" -> TaxYearFormatError,
     "INVALID_PAYLOAD" -> BadRequestError,
+    "NOT_FOUND_PERIOD" -> DownstreamError,
     "INVALID_ACCOUNTING_PERIOD" -> TaxYearNotSpecifiedRuleError,
     "NOT_FOUND_INCOME_SOURCE" -> DownstreamError,
     "MISSING_GIFT_AID_AMOUNT" -> DownstreamError,
