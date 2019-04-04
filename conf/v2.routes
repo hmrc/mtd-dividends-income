@@ -1,5 +1,3 @@
-GET        /sample/:nino        v2.controllers.SampleController.doSomething(nino:String)
-
 PUT        /ni/:nino/dividends/:taxYear                     v2.controllers.DividendsController.amend(nino:String, taxYear:String)
 
 GET        /ni/:nino/dividends/:taxYear                     v2.controllers.DividendsController.retrieve(nino:String, taxYear:String)
