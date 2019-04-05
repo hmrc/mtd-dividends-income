@@ -20,7 +20,8 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
 import play.api.libs.ws.{WSRequest, WSResponse}
 import support.IntegrationBaseSpec
-import v2.stubs.{AuditStub, AuthStub, MtdIdLookupStub}
+import v2.models.requestData.DesTaxYear
+import v2.stubs.{AuditStub, AuthStub, DesStub, MtdIdLookupStub}
 
 class AuthISpec extends IntegrationBaseSpec {
 
@@ -31,7 +32,7 @@ class AuthISpec extends IntegrationBaseSpec {
 
     def request(): WSRequest = {
       setupStubs()
-      buildRequest(s"/2.0/sample/$nino")
+      buildRequest(s"/2.0/ni/$nino/dividends/2018-19")
     }
   }
 
@@ -61,6 +62,7 @@ class AuthISpec extends IntegrationBaseSpec {
           AuditStub.audit()
           MtdIdLookupStub.ninoFound(nino)
           AuthStub.authorised()
+          DesStub.retrieveSuccess(nino, DesTaxYear.fromMtd("2018-19"))
         }
 
         val response: WSResponse = await(request().get())
