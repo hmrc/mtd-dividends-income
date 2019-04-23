@@ -19,9 +19,10 @@ package v2.controllers.requestParsers
 import play.api.mvc.AnyContentAsJson
 import support.UnitSpec
 import uk.gov.hmrc.domain.Nino
+import v2.controllers.requestParsers.validators.validations.JsonFormatValidation
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.validators.MockAmendDividendsValidator
-import v2.models.errors.{BadRequestError, ErrorWrapper, NinoFormatError, TaxYearFormatError}
+import v2.models.errors._
 import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
 
 class AmendDividendsRequestDataParserSpec extends UnitSpec{
@@ -74,6 +75,20 @@ class AmendDividendsRequestDataParserSpec extends UnitSpec{
 
         result shouldBe Left(ErrorWrapper(None, BadRequestError, Some(expectedData)))
 
+      }
+    }
+
+    "return a JSON validation error" when {
+      "the supplied JSON fails validation" in new Test {
+        val nino = "AA456A"
+        val taxYear = "2018-19"
+        private val expectedError = MtdError(JsonFormatValidation.JSON_NUMBER_EXPECTED, "/totalWorth should be a valid JSON number")
+        val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
+
+        MockAmendDividendsValidator.validate(requestRawData).returns(List(expectedError))
+        private val result = target.parse(requestRawData)
+
+        result shouldBe Left(ErrorWrapper(None, BadRequestError, Some(List(expectedError))))
       }
     }
 
