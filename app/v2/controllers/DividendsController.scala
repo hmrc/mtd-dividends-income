@@ -60,10 +60,10 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
           val correlationId = getCorrelationId(errorWrapper)
           val result: Result = processError(errorWrapper).withHeaders("X-CorrelationId" -> correlationId)
           auditSubmission(createAuditDetails(nino, taxYear,
-            result.header.status, request.request.body, correlationId, request.userDetails,  Some(errorWrapper)))
+            result.header.status, request.request.body, correlationId, request.userDetails, Some(errorWrapper)))
           result
       }
-      case Left(errorWrapper)           =>
+      case Left(errorWrapper) =>
         val correlationId = getCorrelationId(errorWrapper)
         val result: Result = processError(errorWrapper).withHeaders("X-CorrelationId" -> correlationId)
         auditSubmission(createAuditDetails(nino, taxYear, result.header.status, request.request.body, correlationId, request.userDetails, Some(errorWrapper)))
@@ -80,7 +80,7 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
           Ok(Json.toJson(desResponse.responseData)).withHeaders("X-CorrelationId" -> desResponse.correlationId)
         case Left(errorWrapper) => processError(errorWrapper).withHeaders("X-CorrelationId" -> getCorrelationId(errorWrapper))
       }
-      case Left(errorWrapper)               => Future.successful {
+      case Left(errorWrapper) => Future.successful {
         processError(errorWrapper).withHeaders("X-CorrelationId" -> getCorrelationId(errorWrapper))
       }
     }
@@ -94,9 +94,10 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
            | TaxYearNotSpecifiedRuleError
            | UkDividendsAmountFormatError
            | OtherUkDividendsAmountFormatError
+           | RuleTaxYearRangeExceededError
            | EmptyOrNonMatchingBodyRuleError => BadRequest(Json.toJson(errorWrapper))
-      case NotFoundError                     => NotFound(Json.toJson(errorWrapper))
-      case DownstreamError                   => InternalServerError(Json.toJson(errorWrapper))
+      case NotFoundError => NotFound(Json.toJson(errorWrapper))
+      case DownstreamError => InternalServerError(Json.toJson(errorWrapper))
 
     }
   }
@@ -106,7 +107,7 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
       case Some(correlationId) => logger.info("[DividendsController][getCorrelationId] - " +
         s"Error received from DES ${Json.toJson(errorWrapper)} with CorrelationId: $correlationId")
         correlationId
-      case None                =>
+      case None =>
         val correlationId = UUID.randomUUID().toString
         logger.info("[DividendsController][getCorrelationId] - " +
           s"Validation error: ${Json.toJson(errorWrapper)} with CorrelationId: $correlationId")
