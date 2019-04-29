@@ -118,7 +118,8 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
         TaxYearFormatError,
         TaxYearNotSpecifiedRuleError,
         UkDividendsAmountFormatError,
-        OtherUkDividendsAmountFormatError
+        OtherUkDividendsAmountFormatError,
+        RuleTaxYearRangeExceededError
       )
 
       val badRequestErrorsFromService = List(
