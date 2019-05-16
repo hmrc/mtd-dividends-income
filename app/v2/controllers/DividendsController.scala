@@ -32,7 +32,6 @@ import v2.models.errors._
 import v2.models.requestData.{AmendDividendsRequestRawData, RetrieveDividendsRequestRawData}
 import v2.services.{AuditService, DividendsService, EnrolmentsAuthService, MtdIdLookupService}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -43,7 +42,7 @@ class DividendsController @Inject()(val authService: EnrolmentsAuthService,
                                     retrieveDividendsRequestDataParser: RetrieveDividendsRequestDataParser,
                                     auditService: AuditService,
                                     cc: ControllerComponents
-                                   ) extends AuthorisedController(cc) {
+                                   )(implicit ec: ExecutionContext) extends AuthorisedController(cc) {
 
   val logger: Logger = Logger(this.getClass)
 
