@@ -25,6 +25,7 @@ import v2.mocks.services.{MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.errors._
 import v2.services.{EnrolmentsAuthService, MtdIdLookupService}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class AuthorisedControllerSpec extends ControllerBaseSpec {
