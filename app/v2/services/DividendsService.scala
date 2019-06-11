@@ -36,7 +36,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
 
       case Right(desResponse) => Right(desResponse.correlationId)
       case Left(DesResponse(correlationId, MultipleErrors(errors))) =>
-        val mtdErrors = errors.map(error => desErrorToMtdErrorAmend(error.code))
+        val mtdErrors = errors.map(error =>  desErrorToMtdErrorAmend(error.code))
         if (mtdErrors.contains(DownstreamError)) {
           logger.info(s"[DividendsIncomeService] [amend] [CorrelationId - $correlationId]" +
             s" - downstream returned INVALID_IDTYPE or NOT_FOUND_PERIOD. Revert to ISE")

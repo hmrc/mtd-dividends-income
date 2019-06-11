@@ -16,8 +16,13 @@
 
 package v2.models.requestData
 
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.domain.Nino
 import v2.models.Dividends
 
 
 case class AmendDividendsRequest(nino: Nino, desTaxYear: DesTaxYear, model: Dividends)
+
+object AmendDividendsRequest {
+  implicit val formats = Json.format[AmendDividendsRequest]
+}

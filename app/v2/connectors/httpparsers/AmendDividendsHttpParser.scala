@@ -17,43 +17,62 @@
 package v2.connectors.httpparsers
 
 import play.api.Logger
-import play.api.http.Status._
 import play.api.libs.json.{Reads, __}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
-import v2.models.errors.{DownstreamError, GenericError}
-import v2.models.outcomes.{AmendDividendsConnectorOutcome, DesResponse}
+import v2.models.errors.{DownstreamError, MtdError}
+
+case class DownstreamResponse[ResponseClass](rawResponse: HttpResponse, data: Either[List[MtdError], ResponseClass])
+
 
 object AmendDividendsHttpParser extends HttpParser {
 
-  val logger = Logger(this.getClass)
+  type AmendDividendsResponse = String
 
+  val logger = Logger(this.getClass)
 
   private val jsonReads: Reads[String] = (__ \ "transactionReference").read[String]
 
-  implicit val amendHttpReads: HttpReads[AmendDividendsConnectorOutcome] = new HttpReads[AmendDividendsConnectorOutcome] {
-    override def read(method: String, url: String, response: HttpResponse): AmendDividendsConnectorOutcome = {
+  implicit val amendHttpReadsNew: HttpReads[DownstreamResponse[String]] = new HttpReads[DownstreamResponse[AmendDividendsResponse]] {
+
+    def read(response: HttpResponse, url: String, successResponseCode: Int, valid4xxStatusCode: List[Int]): DownstreamResponse[AmendDividendsResponse] = {
 
       val correlationId = retrieveCorrelationId(response)
-      if (response.status != OK) {
+      if (response.status != successResponseCode) {
         logger.info("[AmendDividendsHttpParser][read] - " +
           s"Error response received from DES with status: ${response.status} and body\n" +
           s"${response.body} and CorrelationId: $correlationId when calling $url")
       }
 
       response.status match {
-        case OK => logger.info("[AmendDividendsHttpParser][read] - " +
-          s"Success response received from DES with CorrelationId: $correlationId when calling $url")
-          parseResponse(correlationId, response)
-        case BAD_REQUEST | FORBIDDEN => Left(DesResponse(correlationId, parseErrors(response)))
-        case INTERNAL_SERVER_ERROR | SERVICE_UNAVAILABLE => Left(DesResponse(correlationId, GenericError(DownstreamError)))
-        case _ => Left(DesResponse(correlationId, GenericError(DownstreamError)))
+        case `successResponseCode` => parseResponse(response)
+        case x if valid4xxStatusCode.contains(x) => DownstreamResponse(response, Left(parseDesErrors(response)))
+        case catchAll => /* Log catchAll then... */ DownstreamResponse(response, Left(List(DownstreamError)))
+      }
+
+    }
+
+    //    def parseJsonToCaseClass[A](): Either[List[MtdError], A] = ???
+
+    def parseDesErrors(response: HttpResponse): List[MtdError] = ???
+
+    //    {
+    //      parseErrors(response) match {
+    //        case v2.models.errors.SingleError(error) => List(error)
+    //        case v2.models.errors.MultipleErrors(errors) => errors.toList
+    //      }
+    //    }
+
+    def parseResponse(response: HttpResponse): DownstreamResponse[AmendDividendsResponse] = {
+      response.validateJson[String](jsonReads) match {
+        case Some(ref) => DownstreamResponse(response, Right(ref))
+        case None => /* LOG */ DownstreamResponse(response, Left(List(DownstreamError)))
       }
     }
 
-    private def parseResponse(correlationId: String, response: HttpResponse): AmendDividendsConnectorOutcome =
-      response.validateJson[String](jsonReads) match {
-        case Some(ref) => Right(DesResponse(correlationId, ref))
-        case None => Left(DesResponse(correlationId, GenericError(DownstreamError)))
-      }
+    def mapMeErrors(errors: List[MtdError], mappings: Map[String, MtdError]): List[MtdError] = {
+      errors.map(error => mappings(error.code))
+    }
+
   }
 }
+
