@@ -5,6 +5,8 @@
 
 This service manages the mtd-dividends-income.
 
+sbt "~run 9775"
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
