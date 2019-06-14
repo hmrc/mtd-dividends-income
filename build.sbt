@@ -46,6 +46,5 @@ lazy val microservice = Project(appName, file("."))
     parallelExecution in IntegrationTest := false,
     addTestReportOption(IntegrationTest, "int-test-reports")
   )
-  .settings(
-    resolvers += Resolver.jcenterRepo
-  )
+  .settings(resolvers += Resolver.jcenterRepo)
+  .settings(PlayKeys.playDefaultPort := 9775)
