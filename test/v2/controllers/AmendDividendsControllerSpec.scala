@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
-class DividendsControllerAmendSpec extends ControllerBaseSpec
+class AmendDividendsControllerSpec extends ControllerBaseSpec
   with MockEnrolmentsAuthService
   with MockMtdIdLookupService
   with MockDividendsService
@@ -47,12 +47,11 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
 
     val hc = HeaderCarrier()
 
-    val target = new DividendsController(
+    val target = new AmendDividendsController(
       authService = mockEnrolmentsAuthService,
       lookupService = mockMtdIdLookupService,
       mockDividendsService,
       mockAmendDividendsRequestDataParser,
-      mockRetrieveDividendsRequestDataParser,
       mockAuditService,
       cc
     )
@@ -130,6 +129,15 @@ class DividendsControllerAmendSpec extends ControllerBaseSpec
 
       badRequestErrorsFromParser.foreach(errorsFromParserTester(_, BAD_REQUEST))
       badRequestErrorsFromService.foreach(errorsFromServiceTester(_, BAD_REQUEST))
+
+    }
+
+    "return a 404 Not Found Error with a single error" when {
+
+      val notFoundErrors = List(
+        NotFoundError
+      )
+      notFoundErrors.foreach(errorsFromServiceTester(_, NOT_FOUND))
 
     }
 

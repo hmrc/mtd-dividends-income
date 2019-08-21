@@ -30,7 +30,7 @@ import v2.models.requestData._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
+class RetrieveDividendsControllerSpec extends ControllerBaseSpec {
 
   trait Test extends MockEnrolmentsAuthService
     with MockMtdIdLookupService
@@ -42,11 +42,10 @@ class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
 
     val hc = HeaderCarrier()
 
-    val controller = new DividendsController(
+    val controller = new RetrieveDividendsController(
       authService = mockEnrolmentsAuthService,
       lookupService = mockMtdIdLookupService,
       mockDividendsService,
-      mockAmendDividendsRequestDataParser,
       mockRetrieveDividendsRequestDataParser,
       mockAuditService,
       cc
@@ -128,7 +127,6 @@ class DividendsControllerRetrieveSpec extends ControllerBaseSpec {
       val notFoundErrors = List(
         NotFoundError
       )
-
       notFoundErrors.foreach(errorsFromServiceTester(_, NOT_FOUND))
 
     }
