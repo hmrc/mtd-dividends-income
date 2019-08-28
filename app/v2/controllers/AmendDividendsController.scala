@@ -60,7 +60,6 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
 
           NoContent
             .withApiHeaders(correlationId)
-            .as(MimeTypes.JSON)
         }
 
       result.leftMap { errorWrapper =>
