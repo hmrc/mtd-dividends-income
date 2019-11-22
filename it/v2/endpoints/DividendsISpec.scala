@@ -60,6 +60,7 @@ class DividendsISpec extends IntegrationBaseSpec {
 
         val response: WSResponse = await(request().put(DividendsFixture.mtdFormatJson))
         response.status shouldBe Status.NO_CONTENT
+        response.header("Content-Type") shouldBe None
       }
     }
 
