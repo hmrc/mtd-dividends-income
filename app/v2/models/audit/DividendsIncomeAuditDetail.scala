@@ -17,7 +17,6 @@
 package v2.models.audit
 
 import play.api.libs.json._
-import v2.models.Dividends
 
 case class DividendsIncomeAuditDetail(
                                        userType: String,

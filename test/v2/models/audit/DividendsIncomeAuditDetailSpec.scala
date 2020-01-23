@@ -20,7 +20,6 @@ import play.api.http.Status
 import play.api.libs.json.Json
 import support.UnitSpec
 import v2.fixtures.Fixtures.DividendsFixture
-import v2.models.Dividends
 
 class DividendsIncomeAuditDetailSpec extends UnitSpec {
 
@@ -41,8 +40,6 @@ class DividendsIncomeAuditDetailSpec extends UnitSpec {
             |     "X-CorrelationId": "X-123"
             | }
           """.stripMargin)
-
-        val auditRequest = new Dividends(Some(500.25), Some(100.25))
 
         val auditDetail = new DividendsIncomeAuditDetail("Organisation", None,
         "MA123456D", "2017", DividendsFixture.mtdFormatJson, "X-123")
@@ -77,7 +74,6 @@ class DividendsIncomeAuditDetailSpec extends UnitSpec {
             | }
           """.stripMargin)
 
-        val auditRequest = new Dividends(Some(500.25), Some(100.25))
         val auditResponse = new AuditResponse(Status.BAD_REQUEST, Seq(AuditError("FORMAT_NINO")))
 
         val auditDetail = new DividendsIncomeAuditDetail("Agent", Some("012345678"),

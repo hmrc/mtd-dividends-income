@@ -73,7 +73,7 @@ class RetrieveDividendsController @Inject()(val authService: EnrolmentsAuthServi
            | RuleTaxYearRangeExceededError => BadRequest(Json.toJson(errorWrapper))
       case NotFoundError => NotFound(Json.toJson(errorWrapper))
       case DownstreamError => InternalServerError(Json.toJson(errorWrapper))
-
+      case _ => InternalServerError(Json.toJson(DownstreamError))
     }
   }
 }

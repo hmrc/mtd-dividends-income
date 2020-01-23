@@ -60,6 +60,7 @@ class EnrolmentsAuthService @Inject()(val connector: AuthConnector) {
             Logger.warn(s"[EnrolmentsAuthService][authorised] No AgentReferenceNumber defined on agent enrolment.")
             Left(DownstreamError)
         }
+      case _ ~ _ => Future.successful(Left(DownstreamError))
     } recoverWith {
       case _: MissingBearerToken => Future.successful(Left(UnauthorisedError))
       case _: AuthorisationException => Future.successful(Left(UnauthorisedError))

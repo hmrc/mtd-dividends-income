@@ -19,7 +19,6 @@ package v2.controllers
 import cats.data.EitherT
 import cats.implicits._
 import javax.inject.{Inject, Singleton}
-import play.api.http.MimeTypes
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContentAsJson, ControllerComponents, _}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -83,7 +82,7 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
            | EmptyOrNonMatchingBodyRuleError => BadRequest(Json.toJson(errorWrapper))
       case NotFoundError => NotFound(Json.toJson(errorWrapper))
       case DownstreamError => InternalServerError(Json.toJson(errorWrapper))
-
+      case _ => InternalServerError(Json.toJson(DownstreamError))
     }
   }
 

@@ -49,7 +49,6 @@ class AuditServiceSpec extends ServiceSpec {
     "return a successful audit result" in new Test {
       val expected: Future[AuditResult] = Future.successful(Success)
       val eventDetails = "some data"
-      val generatedEvent = ExtendedDataEvent(auditSource = "", auditType = "", detail = Json.toJson(eventDetails))
 
       (mockAuditConnector.sendExtendedEvent(_: ExtendedDataEvent)(_: HeaderCarrier, _: ExecutionContext))
         .expects(*, *, *)
