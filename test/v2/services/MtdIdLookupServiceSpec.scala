@@ -19,7 +19,6 @@ package v2.services
 import v2.mocks.connectors.MockMtdIdLookupConnector
 import v2.models.errors.{DownstreamError, NinoFormatError, UnauthorisedError}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class MtdIdLookupServiceSpec extends ServiceSpec {

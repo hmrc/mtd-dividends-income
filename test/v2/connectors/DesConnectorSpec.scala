@@ -46,7 +46,6 @@ class DesConnectorSpec extends ConnectorSpec {
     "return successful response" when {
       "valid data is supplied" in new Test {
         val nino = "AA123456A"
-        val taxYear = "2018-19"
         val desTaxYear = "2019"
         val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
         val transactionReference = "000000000001"
@@ -110,7 +109,6 @@ class DesConnectorSpec extends ConnectorSpec {
 
         val nino = "AA123456A"
         val desTaxYear = "2019"
-        val transactionReference = "000000000001"
         val expectedResult = DesResponse(correlationId, DividendsFixture.dividendsModel)
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](

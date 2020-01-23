@@ -17,8 +17,7 @@
 package v2.controllers.requestParsers.validators
 
 import v2.controllers.requestParsers.validators.validations._
-import v2.models.Dividends
-import v2.models.errors.{MtdError, OtherUkDividendsAmountFormatError, TaxYearNotSpecifiedRuleError, UkDividendsAmountFormatError}
+import v2.models.errors.{MtdError, TaxYearNotSpecifiedRuleError}
 import v2.models.requestData.RetrieveDividendsRequestRawData
 
 class RetrieveDividendsValidator extends Validator[RetrieveDividendsRequestRawData]{

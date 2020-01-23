@@ -23,7 +23,6 @@ import v2.models.errors._
 import v2.models.outcomes.DesResponse
 import v2.models.requestData.{DesTaxYear, RetrieveDividendsRequest}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class RetrieveDividendsServiceSpec extends ServiceSpec {
@@ -69,7 +68,6 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
     "return multiple errors" when {
       "the DesConnector returns multiple errors" in new Test {
         val taxYear = "2019-20"
-        val expectedResult = correlationId
         val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
         val response = DesResponse(correlationId,
           MultipleErrors(Seq(MtdError("INVALID_NINO", "reason"), MtdError("INVALID_TAXYEAR", "reason"))))
@@ -86,7 +84,6 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
     "return a single error" when {
       "the DesConnector returns multiple errors and one maps to a DownstreamError" in new Test {
         val desTaxYear = "2019"
-        val expectedResult = correlationId
         val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
 
         val response = DesResponse(correlationId,
@@ -102,7 +99,6 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
 
     "the DesConnector returns a GenericError" in new Test {
       val desTaxYear = "2019"
-      val expectedResult = correlationId
       val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
       val response = DesResponse(correlationId, GenericError(DownstreamError))
       MockDesConnector.retrieve(retrieveDividendsRequest).returns(Future.successful(Left(response)))
@@ -128,7 +124,6 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
 
       s"the DesConnector returns a single $error error" in new Test {
         val desTaxYear = "2019"
-        val expectedResult: String = correlationId
         val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
 
         val response = DesResponse(correlationId, SingleError(MtdError(error, "reason")))

@@ -46,6 +46,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
         }
       case Left(DesResponse(correlationId, SingleError(error))) => Left(ErrorWrapper(Some(correlationId), desErrorToMtdErrorAmend(error.code), None))
       case Left(DesResponse(correlationId, GenericError(error))) => Left(ErrorWrapper(Some(correlationId), error, None))
+      case Left(_@e) => Left(ErrorWrapper(Some(e.correlationId), DownstreamError, None))
     }
   }
 
@@ -65,6 +66,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
         }
       case Left(DesResponse(correlationId, SingleError(error))) => Left(ErrorWrapper(Some(correlationId), desErrorToMtdErrorRetrieve(error.code), None))
       case Left(DesResponse(correlationId, GenericError(error))) => Left(ErrorWrapper(Some(correlationId), error, None))
+      case Left(_@e) => Left(ErrorWrapper(Some(e.correlationId), DownstreamError, None))
     }
   }
 
