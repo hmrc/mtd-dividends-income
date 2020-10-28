@@ -22,7 +22,9 @@ import v2.mocks.validators.MockRetrieveDividendsValidator
 import v2.models.errors.{BadRequestError, ErrorWrapper, NinoFormatError, TaxYearFormatError}
 import v2.models.requestData.{DesTaxYear, RetrieveDividendsRequest, RetrieveDividendsRequestRawData}
 
-class RetrieveDividendsRequestDataParserSpec extends UnitSpec{
+class RetrieveDividendsRequestDataParserSpec extends UnitSpec {
+
+  implicit val correlationId: String = "a1e8057e-fbbc-47a8-a8b4-78d9f015c253"
 
   trait Test extends MockRetrieveDividendsValidator {
     val parser = new RetrieveDividendsRequestDataParser(mockRetrieveDividendsValidator)
@@ -31,14 +33,14 @@ class RetrieveDividendsRequestDataParserSpec extends UnitSpec{
   "Calling parse" should {
     "return valid retrieve request object" when {
       "valid request data is supplied" in new Test {
-        val nino = "AA123456A"
-        val taxYear = "2017-18"
-        val inputRawRequest = RetrieveDividendsRequestRawData(nino, taxYear)
-        val expectedResult = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
+        val nino: String = "AA123456A"
+        val taxYear: String = "2017-18"
+        val inputRawRequest: RetrieveDividendsRequestRawData = RetrieveDividendsRequestRawData(nino, taxYear)
+        val expectedResult: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
 
         MockRetrieveDividendsValidator.validate(inputRawRequest).returns(Nil)
 
-        val result = parser.parse(inputRawRequest)
+        private val result = parser.parse(inputRawRequest)
 
         result shouldBe Right(expectedResult)
       }
@@ -46,13 +48,13 @@ class RetrieveDividendsRequestDataParserSpec extends UnitSpec{
 
     "return single validation nino format error" when {
       "invalid nino and valid tax year is supplied" in new Test {
-        val nino = "AA1256A"
-        val taxYear = "2017-18"
-        val inputRawRequest = RetrieveDividendsRequestRawData(nino, taxYear)
-        val expectedResult = ErrorWrapper(None, NinoFormatError, None)
+        val nino: String = "AA1256A"
+        val taxYear: String = "2017-18"
+        val inputRawRequest: RetrieveDividendsRequestRawData = RetrieveDividendsRequestRawData(nino, taxYear)
+        val expectedResult: ErrorWrapper = ErrorWrapper(correlationId, NinoFormatError, None)
 
         MockRetrieveDividendsValidator.validate(inputRawRequest).returns(List(NinoFormatError))
-        val result = parser.parse(inputRawRequest)
+        private val result = parser.parse(inputRawRequest)
 
         result shouldBe Left(expectedResult)
       }
@@ -60,13 +62,13 @@ class RetrieveDividendsRequestDataParserSpec extends UnitSpec{
 
     "return single validation tax year format error" when {
       "invalid tax year and valid nino is supplied" in new Test {
-        val nino = "AA123456A"
-        val taxYear = "2017"
-        val inputRawRequest = RetrieveDividendsRequestRawData(nino, taxYear)
-        val expectedResult = ErrorWrapper(None, TaxYearFormatError, None)
+        val nino: String = "AA123456A"
+        val taxYear: String = "2017"
+        val inputRawRequest: RetrieveDividendsRequestRawData = RetrieveDividendsRequestRawData(nino, taxYear)
+        val expectedResult: ErrorWrapper = ErrorWrapper(correlationId, TaxYearFormatError, None)
 
         MockRetrieveDividendsValidator.validate(inputRawRequest).returns(List(TaxYearFormatError))
-        val result = parser.parse(inputRawRequest)
+        private val result = parser.parse(inputRawRequest)
 
         result shouldBe Left(expectedResult)
       }
@@ -74,13 +76,13 @@ class RetrieveDividendsRequestDataParserSpec extends UnitSpec{
 
     "return multiple validation errors" when {
       "invalid tax year and nino is supplied" in new Test {
-        val nino = "AA1256A"
-        val taxYear = "2017"
-        val inputRawRequest = RetrieveDividendsRequestRawData(nino, taxYear)
-        val expectedResult = ErrorWrapper(None, BadRequestError, Some(List(NinoFormatError, TaxYearFormatError)))
+        val nino: String = "AA1256A"
+        val taxYear: String = "2017"
+        val inputRawRequest: RetrieveDividendsRequestRawData = RetrieveDividendsRequestRawData(nino, taxYear)
+        val expectedResult: ErrorWrapper = ErrorWrapper(correlationId, BadRequestError, Some(List(NinoFormatError, TaxYearFormatError)))
 
         MockRetrieveDividendsValidator.validate(inputRawRequest).returns(List(NinoFormatError, TaxYearFormatError))
-        val result = parser.parse(inputRawRequest)
+        private val result = parser.parse(inputRawRequest)
 
         result shouldBe Left(expectedResult)
       }

@@ -21,10 +21,12 @@ import support.UnitSpec
 import uk.gov.hmrc.domain.Nino
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.validators.MockAmendDividendsValidator
-import v2.models.errors.{BadRequestError, ErrorWrapper, NinoFormatError, TaxYearFormatError}
+import v2.models.errors.{BadRequestError, ErrorWrapper, MtdError, NinoFormatError, TaxYearFormatError}
 import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
 
-class AmendDividendsRequestDataParserSpec extends UnitSpec{
+class AmendDividendsRequestDataParserSpec extends UnitSpec {
+
+  implicit val correlationId: String = "a1e8057e-fbbc-47a8-a8b4-78d9f015c253"
 
   trait Test extends MockAmendDividendsValidator {
     val target = new AmendDividendsRequestDataParser(mockAmendDividendsValidator)
@@ -33,12 +35,11 @@ class AmendDividendsRequestDataParserSpec extends UnitSpec{
   "Calling parse method" should {
     "return validated request data" when {
       "valid request is supplied" in new Test {
-
-        val nino = "AA123456A"
-        val taxYear = "2018-19"
-        val desTaxYear = "2019"
-        val expectedData = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
-        val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
+        val nino: String = "AA123456A"
+        val taxYear: String = "2018-19"
+        val desTaxYear: String = "2019"
+        val expectedData: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
+        val requestRawData: AmendDividendsRequestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
 
         MockAmendDividendsValidator.validate(requestRawData).returns(Nil)
 
@@ -50,29 +51,29 @@ class AmendDividendsRequestDataParserSpec extends UnitSpec{
 
     "return an Invalid nino error" when {
       "an invalid nino is supplied" in new Test {
-        val nino = "AA456A"
-        val taxYear = "2018-19"
+        val nino: String = "AA456A"
+        val taxYear: String = "2018-19"
         private val expectedData = NinoFormatError
-        val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
+        val requestRawData: AmendDividendsRequestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
 
         MockAmendDividendsValidator.validate(requestRawData).returns(List(expectedData))
         private val result = target.parse(requestRawData)
 
-        result shouldBe Left(ErrorWrapper(None, expectedData, None))
+        result shouldBe Left(ErrorWrapper(correlationId, expectedData, None))
       }
     }
 
     "return multiple errors" when {
       "an invalid nino and tax year is supplied" in new Test {
-        val nino = "AA1456A"
-        val taxYear = "20189"
-        val expectedData = List(NinoFormatError, TaxYearFormatError)
-        val requestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
+        val nino: String = "AA1456A"
+        val taxYear: String = "20189"
+        val expectedData: List[MtdError] = List(NinoFormatError, TaxYearFormatError)
+        val requestRawData: AmendDividendsRequestRawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
 
         MockAmendDividendsValidator.validate(requestRawData).returns(expectedData)
         private val result = target.parse(requestRawData)
 
-        result shouldBe Left(ErrorWrapper(None, BadRequestError, Some(expectedData)))
+        result shouldBe Left(ErrorWrapper(correlationId, BadRequestError, Some(expectedData)))
 
       }
     }

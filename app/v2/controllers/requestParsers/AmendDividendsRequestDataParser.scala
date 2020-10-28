@@ -22,14 +22,27 @@ import v2.controllers.requestParsers.validators.AmendDividendsValidator
 import v2.models.Dividends
 import v2.models.errors.{BadRequestError, ErrorWrapper}
 import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
+import v2.utils.Logging
 
-class AmendDividendsRequestDataParser @Inject()(validator: AmendDividendsValidator) {
+class AmendDividendsRequestDataParser @Inject()(validator: AmendDividendsValidator) extends Logging {
 
-  def parse(data: AmendDividendsRequestRawData): Either[ErrorWrapper, AmendDividendsRequest] = {
+  def parse(data: AmendDividendsRequestRawData)(implicit correlationId: String): Either[ErrorWrapper, AmendDividendsRequest] = {
     validator.validate(data) match {
-      case Nil => Right(AmendDividendsRequest(Nino(data.nino), DesTaxYear.fromMtd(data.taxYear), data.body.json.as[Dividends]))
-      case err :: Nil => Left(ErrorWrapper(None, err, None))
-      case errs => Left(ErrorWrapper(None, BadRequestError, Some(errs)))
+      case Nil =>
+        logger.info(
+          "[RequestParser][parseRequest] " +
+            s"Validation successful for the request with CorrelationId: $correlationId")
+        Right(AmendDividendsRequest(Nino(data.nino), DesTaxYear.fromMtd(data.taxYear), data.body.json.as[Dividends]))
+      case err :: Nil =>
+        logger.info(
+          "[RequestParser][parseRequest] " +
+            s"Validation failed with ${err.code} error for the request with CorrelationId: $correlationId")
+        Left(ErrorWrapper(correlationId, err, None))
+      case errs =>
+        logger.info(
+          "[RequestParser][parseRequest] " +
+            s"Validation failed with ${errs.map(_.code).mkString(",")} error for the request with CorrelationId: $correlationId")
+        Left(ErrorWrapper(correlationId, BadRequestError, Some(errs)))
     }
   }
 

@@ -19,16 +19,16 @@ package v2.services
 import uk.gov.hmrc.domain.Nino
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.connectors.MockDesConnector
+import v2.models.Dividends
 import v2.models.errors._
-import v2.models.outcomes.DesResponse
+import v2.models.outcomes.{DesResponse, RetrieveDividendsOutcome}
 import v2.models.requestData.{DesTaxYear, RetrieveDividendsRequest}
 
 import scala.concurrent.Future
 
 class RetrieveDividendsServiceSpec extends ServiceSpec {
 
-  val correlationId = "X-123"
-  val nino = "AA123456A"
+  val nino: String = "AA123456A"
 
   trait Test extends MockDesConnector {
     val service = new DividendsService(connector)
@@ -37,14 +37,14 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
   "calling retrieve" should {
     "return valid dividends data" when {
       "a valid retrieve is passed" in new Test{
-        val desTaxYear = "2019"
-        val expectedResult = DesResponse(correlationId, DividendsFixture.dividendsModel)
-        val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
-        val expectedDesResponse = DesResponse(correlationId, DividendsFixture.dividendsModel)
+        val desTaxYear: String = "2019"
+        val expectedResult: DesResponse[Dividends] = DesResponse(correlationId, DividendsFixture.dividendsModel)
+        val retrieveDividendsRequest: RetrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
+        val expectedDesResponse: DesResponse[Dividends] = DesResponse(correlationId, DividendsFixture.dividendsModel)
 
         MockDesConnector.retrieve(retrieveDividendsRequest).returns(Future.successful(Right(expectedDesResponse)))
 
-        val result = await(service.retrieve(retrieveDividendsRequest))
+        val result: RetrieveDividendsOutcome = await(service.retrieve(retrieveDividendsRequest))
 
         result shouldBe Right(expectedResult)
       }
@@ -52,14 +52,14 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
 
     "return single invalid tax year error" when {
       "an invalid tax year is passed" in new Test {
-        val taxYear = "2019-20"
-        val expectedResult = ErrorWrapper(Some(correlationId), TaxYearFormatError, None)
-        val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
+        val taxYear: String = "2019-20"
+        val expectedResult: ErrorWrapper = ErrorWrapper(correlationId, TaxYearFormatError, None)
+        val retrieveDividendsRequest: RetrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
 
         MockDesConnector.retrieve(retrieveDividendsRequest).
           returns(Future.successful(Left(DesResponse(correlationId, SingleError(MtdError("INVALID_TAXYEAR", "reason"))))))
 
-        val result = await(service.retrieve(retrieveDividendsRequest))
+        val result: RetrieveDividendsOutcome = await(service.retrieve(retrieveDividendsRequest))
 
         result shouldBe Left(expectedResult)
       }
@@ -67,14 +67,14 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
 
     "return multiple errors" when {
       "the DesConnector returns multiple errors" in new Test {
-        val taxYear = "2019-20"
-        val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
-        val response = DesResponse(correlationId,
+        val taxYear: String = "2019-20"
+        val retrieveDividendsRequest: RetrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
+        val response: DesResponse[MultipleErrors] = DesResponse(correlationId,
           MultipleErrors(Seq(MtdError("INVALID_NINO", "reason"), MtdError("INVALID_TAXYEAR", "reason"))))
 
         MockDesConnector.retrieve(retrieveDividendsRequest).returns(Future.successful(Left(response)))
 
-        val expected = ErrorWrapper(Some(correlationId), BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError)))
+        val expected: ErrorWrapper = ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError)))
 
         private val result = await(service.retrieve(retrieveDividendsRequest))
         result shouldBe Left(expected)
@@ -83,14 +83,14 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
     
     "return a single error" when {
       "the DesConnector returns multiple errors and one maps to a DownstreamError" in new Test {
-        val desTaxYear = "2019"
-        val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
+        val desTaxYear: String = "2019"
+        val retrieveDividendsRequest: RetrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
 
-        val response = DesResponse(correlationId,
+        val response: DesResponse[MultipleErrors] = DesResponse(correlationId,
           MultipleErrors(Seq(MtdError("INVALID_NINO", "reason"), MtdError("INVALID_TYPE", "reason"))))
         MockDesConnector.retrieve(retrieveDividendsRequest).returns(Future.successful(Left(response)))
 
-        val expected = ErrorWrapper(Some(correlationId), DownstreamError, None)
+        val expected: ErrorWrapper = ErrorWrapper(correlationId, DownstreamError, None)
 
         private val result = await(service.retrieve(retrieveDividendsRequest))
         result shouldBe Left(expected)
@@ -98,12 +98,12 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
     }
 
     "the DesConnector returns a GenericError" in new Test {
-      val desTaxYear = "2019"
-      val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
-      val response = DesResponse(correlationId, GenericError(DownstreamError))
+      val desTaxYear: String = "2019"
+      val retrieveDividendsRequest: RetrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
+      val response: DesResponse[GenericError] = DesResponse(correlationId, GenericError(DownstreamError))
       MockDesConnector.retrieve(retrieveDividendsRequest).returns(Future.successful(Left(response)))
 
-      val expected = ErrorWrapper(Some(correlationId), DownstreamError, None)
+      val expected: ErrorWrapper = ErrorWrapper(correlationId, DownstreamError, None)
 
       private val result = await(service.retrieve(retrieveDividendsRequest))
       result shouldBe Left(expected)
@@ -123,12 +123,12 @@ class RetrieveDividendsServiceSpec extends ServiceSpec {
     for (error <- errorMap.keys) {
 
       s"the DesConnector returns a single $error error" in new Test {
-        val desTaxYear = "2019"
-        val retrieveDividendsRequest =  RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
+        val desTaxYear: String = "2019"
+        val retrieveDividendsRequest: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
 
-        val response = DesResponse(correlationId, SingleError(MtdError(error, "reason")))
+        val response: DesResponse[SingleError] = DesResponse(correlationId, SingleError(MtdError(error, "reason")))
 
-        val expected = ErrorWrapper(Some(correlationId), errorMap(error), None)
+        val expected: ErrorWrapper = ErrorWrapper(correlationId, errorMap(error), None)
 
         MockDesConnector.retrieve(retrieveDividendsRequest).returns(Future.successful(Left(response)))
 

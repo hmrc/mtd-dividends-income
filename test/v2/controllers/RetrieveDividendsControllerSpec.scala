@@ -21,6 +21,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.fixtures.Fixtures.DividendsFixture
+import v2.mocks.MockIdGenerator
 import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetrieveDividendsRequestDataParser}
 import v2.mocks.services.{MockAuditService, MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.errors._
@@ -32,32 +33,35 @@ import scala.concurrent.Future
 
 class RetrieveDividendsControllerSpec extends ControllerBaseSpec {
 
+  val nino: String = "AA123456A"
+  val taxYear: String = "2017-18"
+  val correlationId: String = "X-123"
+
   trait Test extends MockEnrolmentsAuthService
     with MockMtdIdLookupService
     with MockDividendsService
     with MockAmendDividendsRequestDataParser
     with MockRetrieveDividendsRequestDataParser
-    with MockAuditService {
+    with MockAuditService
+    with MockIdGenerator {
 
-
-    val hc = HeaderCarrier()
+    val hc: HeaderCarrier = HeaderCarrier()
 
     val controller = new RetrieveDividendsController(
       authService = mockEnrolmentsAuthService,
       lookupService = mockMtdIdLookupService,
-      mockDividendsService,
-      mockRetrieveDividendsRequestDataParser,
-      mockAuditService,
-      cc
+      dividendsService = mockDividendsService,
+      retrieveDividendsRequestDataParser = mockRetrieveDividendsRequestDataParser,
+      auditService = mockAuditService,
+      cc = cc,
+      idGenerator = mockIdGenerator
     )
 
     MockedMtdIdLookupService.lookup(nino).returns(Future.successful(Right("test-mtd-id")))
     MockedEnrolmentsAuthService.authoriseUser()
+    MockIdGenerator.generateCorrelationId.returns(correlationId)
   }
 
-  val nino = "AA123456A"
-  val taxYear = "2017-18"
-  val correlationId = "X-123"
   val retrieveDividendsRequest: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
 
   "retrieve" should {
@@ -84,7 +88,7 @@ class RetrieveDividendsControllerSpec extends ControllerBaseSpec {
 
         MockRetrieveDividendsRequestDataParser.parse(
           RetrieveDividendsRequestRawData(nino, taxYear))
-          .returns(Left(ErrorWrapper(None, NinoFormatError, None)))
+          .returns(Left(ErrorWrapper(correlationId, NinoFormatError, None)))
 
         val result: Future[Result] = controller.retrieve(nino, taxYear)(fakeGetRequest)
         status(result) shouldBe BAD_REQUEST
@@ -136,10 +140,11 @@ class RetrieveDividendsControllerSpec extends ControllerBaseSpec {
   def errorsFromParserTester(error: MtdError, expectedStatus: Int): Unit = {
     s"a ${error.code} error is returned from the parser" in new Test {
 
-      val retrieveDividendsRequestData = RetrieveDividendsRequestRawData(nino, taxYear)
+      val retrieveDividendsRequestData: RetrieveDividendsRequestRawData =
+        RetrieveDividendsRequestRawData(nino, taxYear)
 
       MockRetrieveDividendsRequestDataParser.parse(retrieveDividendsRequestData)
-        .returns(Left(ErrorWrapper(Some(correlationId), error, None)))
+        .returns(Left(ErrorWrapper(correlationId, error, None)))
 
       val response: Future[Result] = controller.retrieve(nino, taxYear)(fakeGetRequest)
 
@@ -152,14 +157,17 @@ class RetrieveDividendsControllerSpec extends ControllerBaseSpec {
   def errorsFromServiceTester(error: MtdError, expectedStatus: Int): Unit = {
     s"a ${error.code} error is returned from the service" in new Test {
 
-      val retrieveDividendsRequestData = RetrieveDividendsRequestRawData(nino, taxYear)
-      val retrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
+      val retrieveDividendsRequestData: RetrieveDividendsRequestRawData =
+        RetrieveDividendsRequestRawData(nino, taxYear)
+
+      val retrieveDividendsRequest: RetrieveDividendsRequest =
+        RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
 
       MockRetrieveDividendsRequestDataParser.parse(retrieveDividendsRequestData)
         .returns(Right(retrieveDividendsRequest))
 
       MockDividendsService.retrieve(retrieveDividendsRequest)
-        .returns(Future.successful(Left(ErrorWrapper(Some(correlationId), error, None))))
+        .returns(Future.successful(Left(ErrorWrapper(correlationId, error, None))))
 
       val response: Future[Result] = controller.retrieve(nino, taxYear)(fakeGetRequest)
 

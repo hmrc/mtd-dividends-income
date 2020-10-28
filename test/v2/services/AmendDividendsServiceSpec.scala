@@ -20,14 +20,14 @@ import uk.gov.hmrc.domain.Nino
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.connectors.MockDesConnector
 import v2.models.errors._
-import v2.models.outcomes.DesResponse
+import v2.models.outcomes.{AmendDividendsOutcome, DesResponse}
 import v2.models.requestData.{AmendDividendsRequest, DesTaxYear}
+
 import scala.concurrent.Future
 
 class AmendDividendsServiceSpec extends ServiceSpec {
 
-  val correlationId = "X-123"
-  val nino = "AA123456A"
+  val nino: String = "AA123456A"
 
   trait Test extends MockDesConnector {
     val service = new DividendsService(connector)
@@ -36,12 +36,12 @@ class AmendDividendsServiceSpec extends ServiceSpec {
   "calling amend" should {
     "return a valid CorrelationId" when {
       "a valid request is passed" in new Test{
-        val desTaxYear = "2019"
-        val expectedResult = correlationId
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
+        val desTaxYear: String = "2019"
+        val expectedResult: String = correlationId
+        val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
         MockDesConnector.amend(amendDividendsRequest).returns(Future.successful(Right(DesResponse(correlationId, "ref"))))
 
-        val result = await(service.amend(amendDividendsRequest))
+        val result: AmendDividendsOutcome = await(service.amend(amendDividendsRequest))
 
         result shouldBe Right(expectedResult)
       }
@@ -49,14 +49,14 @@ class AmendDividendsServiceSpec extends ServiceSpec {
 
     "return single invalid tax year error" when {
       "an invalid tax year is passed" in new Test {
-        val taxYear = "2019-20"
-        val expectedResult = ErrorWrapper(Some(correlationId), TaxYearFormatError, None)
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
+        val taxYear: String = "2019-20"
+        val expectedResult: ErrorWrapper = ErrorWrapper(correlationId, TaxYearFormatError, None)
+        val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
 
         MockDesConnector.amend(amendDividendsRequest).
           returns(Future.successful(Left(DesResponse(correlationId, SingleError(MtdError("INVALID_TAXYEAR", "reason"))))))
 
-        val result = await(service.amend(amendDividendsRequest))
+        val result: AmendDividendsOutcome = await(service.amend(amendDividendsRequest))
 
         result shouldBe Left(expectedResult)
       }
@@ -64,14 +64,14 @@ class AmendDividendsServiceSpec extends ServiceSpec {
 
     "return multiple errors" when {
       "the DesConnector returns multiple errors" in new Test {
-        val taxYear = "2019-20"
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
-        val response = DesResponse(correlationId,
+        val taxYear: String = "2019-20"
+        val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
+        val response: DesResponse[MultipleErrors] = DesResponse(correlationId,
           MultipleErrors(Seq(MtdError("INVALID_NINO", "reason"), MtdError("INVALID_TAXYEAR", "reason"))))
 
         MockDesConnector.amend(amendDividendsRequest).returns(Future.successful(Left(response)))
 
-        val expected = ErrorWrapper(Some(correlationId), BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError)))
+        val expected: ErrorWrapper = ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError)))
 
         private val result = await(service.amend(amendDividendsRequest))
         result shouldBe Left(expected)
@@ -80,14 +80,14 @@ class AmendDividendsServiceSpec extends ServiceSpec {
     }
     "return a single error" when {
       "the DesConnector returns multiple errors and one maps to a DownstreamError" in new Test {
-        val desTaxYear = "2019"
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
+        val desTaxYear: String = "2019"
+        val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
 
-        val response = DesResponse(correlationId,
+        val response: DesResponse[MultipleErrors] = DesResponse(correlationId,
           MultipleErrors(Seq(MtdError("INVALID_NINO", "reason"), MtdError("INVALID_TYPE", "reason"))))
         MockDesConnector.amend(amendDividendsRequest).returns(Future.successful(Left(response)))
 
-        val expected = ErrorWrapper(Some(correlationId), DownstreamError, None)
+        val expected: ErrorWrapper = ErrorWrapper(correlationId, DownstreamError, None)
 
         private val result = await(service.amend(amendDividendsRequest))
         result shouldBe Left(expected)
@@ -95,12 +95,12 @@ class AmendDividendsServiceSpec extends ServiceSpec {
     }
 
     "the DesConnector returns a GenericError" in new Test {
-      val desTaxYear = "2019"
-      val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
-      val response = DesResponse(correlationId, GenericError(DownstreamError))
+      val desTaxYear: String = "2019"
+      val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
+      val response: DesResponse[GenericError] = DesResponse(correlationId, GenericError(DownstreamError))
       MockDesConnector.amend(amendDividendsRequest).returns(Future.successful(Left(response)))
 
-      val expected = ErrorWrapper(Some(correlationId), DownstreamError, None)
+      val expected: ErrorWrapper = ErrorWrapper(correlationId, DownstreamError, None)
 
       private val result = await(service.amend(amendDividendsRequest))
       result shouldBe Left(expected)
@@ -123,12 +123,12 @@ class AmendDividendsServiceSpec extends ServiceSpec {
     for (error <- errorMap.keys) {
 
       s"the DesConnector returns a single $error error" in new Test {
-        val desTaxYear = "2019"
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
+        val desTaxYear: String = "2019"
+        val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
 
-        val response = DesResponse(correlationId, SingleError(MtdError(error, "reason")))
+        val response: DesResponse[SingleError] = DesResponse(correlationId, SingleError(MtdError(error, "reason")))
 
-        val expected = ErrorWrapper(Some(correlationId), errorMap(error), None)
+        val expected: ErrorWrapper = ErrorWrapper(correlationId, errorMap(error), None)
 
         MockDesConnector.amend(amendDividendsRequest).returns(Future.successful(Left(response)))
 

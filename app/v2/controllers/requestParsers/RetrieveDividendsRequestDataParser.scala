@@ -21,14 +21,27 @@ import uk.gov.hmrc.domain.Nino
 import v2.controllers.requestParsers.validators.RetrieveDividendsValidator
 import v2.models.errors.{BadRequestError, ErrorWrapper}
 import v2.models.requestData.{DesTaxYear, RetrieveDividendsRequest, RetrieveDividendsRequestRawData}
+import v2.utils.Logging
 
-class RetrieveDividendsRequestDataParser @Inject()(validator: RetrieveDividendsValidator) {
+class RetrieveDividendsRequestDataParser @Inject()(validator: RetrieveDividendsValidator) extends Logging {
 
-  def parse(data: RetrieveDividendsRequestRawData): Either[ErrorWrapper, RetrieveDividendsRequest] = {
+  def parse(data: RetrieveDividendsRequestRawData)(implicit correlationId: String): Either[ErrorWrapper, RetrieveDividendsRequest] = {
     validator.validate(data) match {
-      case Nil => Right(RetrieveDividendsRequest(Nino(data.nino), DesTaxYear.fromMtd(data.taxYear)))
-      case err :: Nil => Left(ErrorWrapper(None, err, None))
-      case errs => Left(ErrorWrapper(None, BadRequestError, Some(errs)))
+      case Nil =>
+        logger.info(
+          "[RequestParser][parseRequest] " +
+            s"Validation successful for the request with CorrelationId: $correlationId")
+        Right(RetrieveDividendsRequest(Nino(data.nino), DesTaxYear.fromMtd(data.taxYear)))
+      case err :: Nil =>
+        logger.info(
+          "[RequestParser][parseRequest] " +
+            s"Validation failed with ${err.code} error for the request with CorrelationId: $correlationId")
+        Left(ErrorWrapper(correlationId, err, None))
+      case errs =>
+        logger.info(
+          "[RequestParser][parseRequest] " +
+            s"Validation failed with ${errs.map(_.code).mkString(",")} error for the request with CorrelationId: $correlationId")
+        Left(ErrorWrapper(correlationId, BadRequestError, Some(errs)))
     }
   }
 }

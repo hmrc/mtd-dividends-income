@@ -30,14 +30,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DesConnector @Inject()(http: HttpClient, appConfig: AppConfig) {
 
-  val logger = Logger(this.getClass)
+  val logger: Logger = Logger(this.getClass)
 
-  private[connectors] def desHeaderCarrier(implicit hc: HeaderCarrier): HeaderCarrier = hc
+  private[connectors] def desHeaderCarrier(implicit hc: HeaderCarrier, correlationId: String): HeaderCarrier = hc
     .copy(authorization = Some(Authorization(s"Bearer ${appConfig.desToken}")))
-    .withExtraHeaders("Environment" -> appConfig.desEnv)
+    .withExtraHeaders("Environment" -> appConfig.desEnv, "CorrelationId" -> correlationId)
 
-  def amend(amendDividendsRequest: AmendDividendsRequest)
-           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AmendDividendsConnectorOutcome] = {
+  def amend(amendDividendsRequest: AmendDividendsRequest)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext,
+    correlationId: String): Future[AmendDividendsConnectorOutcome] = {
 
     import v2.connectors.httpparsers.AmendDividendsHttpParser.amendHttpReads
     import v2.models.Dividends.writes
@@ -50,8 +52,10 @@ class DesConnector @Inject()(http: HttpClient, appConfig: AppConfig) {
     http.POST[Dividends, AmendDividendsConnectorOutcome](url, amendDividendsRequest.model)(writes, amendHttpReads, desHeaderCarrier, implicitly)
   }
 
-  def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest)
-              (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RetrieveDividendsConnectorOutcome] = {
+  def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext,
+    correlationId: String): Future[RetrieveDividendsConnectorOutcome] = {
 
     val nino = retrieveDividendsRequest.nino.nino
     val taxYear = retrieveDividendsRequest.desTaxYear

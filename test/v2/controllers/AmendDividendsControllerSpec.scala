@@ -23,6 +23,7 @@ import play.api.mvc.{AnyContentAsJson, Result}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.fixtures.Fixtures.DividendsFixture
+import v2.mocks.MockIdGenerator
 import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetrieveDividendsRequestDataParser}
 import v2.mocks.services.{MockAuditService, MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.Dividends
@@ -33,7 +34,6 @@ import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawDat
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-
 class AmendDividendsControllerSpec extends ControllerBaseSpec
   with MockEnrolmentsAuthService
   with MockMtdIdLookupService
@@ -41,28 +41,32 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
   with MockAmendDividendsRequestDataParser
   with MockRetrieveDividendsRequestDataParser
   with MockAuditService
-  with OneInstancePerTest {
+  with OneInstancePerTest
+  with MockIdGenerator {
+
+  val nino: String = "AA123456A"
+  val taxYear: String = "2017-18"
+  val correlationId: String = "X-123"
 
   trait Test {
 
-    val hc = HeaderCarrier()
+    val hc: HeaderCarrier = HeaderCarrier()
 
     val target = new AmendDividendsController(
       authService = mockEnrolmentsAuthService,
       lookupService = mockMtdIdLookupService,
-      mockDividendsService,
-      mockAmendDividendsRequestDataParser,
-      mockAuditService,
-      cc
+      dividendsService = mockDividendsService,
+      amendDividendsRequestDataParser = mockAmendDividendsRequestDataParser,
+      auditService = mockAuditService,
+      cc = cc,
+      idGenerator = mockIdGenerator
     )
 
     MockedMtdIdLookupService.lookup(nino).returns(Future.successful(Right("test-mtd-id")))
     MockedEnrolmentsAuthService.authoriseUser()
+    MockIdGenerator.generateCorrelationId.returns(correlationId)
   }
 
-  val nino = "AA123456A"
-  val taxYear = "2017-18"
-  val correlationId = "X-123"
   val amendDividendsRequest: AmendDividendsRequest =
     AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
 
@@ -98,7 +102,7 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
 
         MockAmendDividendsRequestDataParser.parse(
           AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson)))
-          .returns(Left(ErrorWrapper(None, NinoFormatError, None)))
+          .returns(Left(ErrorWrapper(correlationId, NinoFormatError, None)))
 
         val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
         status(result) shouldBe BAD_REQUEST
@@ -154,9 +158,10 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
 
     "return a valid error response" when {
       "multiple errors exist" in new Test() {
-        val amendDividendsRequestData =
+        val amendDividendsRequestData: AmendDividendsRequestRawData =
           AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
-        val multipleErrorResponse = ErrorWrapper(Some(correlationId), BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError)))
+
+        val multipleErrorResponse: ErrorWrapper = ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError)))
 
         MockAmendDividendsRequestDataParser.parse(amendDividendsRequestData)
           .returns(Left(multipleErrorResponse))
@@ -183,11 +188,11 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
   def errorsFromParserTester(error: MtdError, expectedStatus: Int): Unit = {
     s"a ${error.code} error is returned from the parser" in new Test {
 
-      val amendDividendsRequestRawData =
+      val amendDividendsRequestRawData: AmendDividendsRequestRawData =
         AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
 
       MockAmendDividendsRequestDataParser.parse(amendDividendsRequestRawData)
-        .returns(Left(ErrorWrapper(Some(correlationId), error, None)))
+        .returns(Left(ErrorWrapper(correlationId, error, None)))
 
       val response: Future[Result] = target.amend(nino, taxYear)(fakePostRequest[JsValue](DividendsFixture.mtdFormatJson))
 
@@ -202,14 +207,14 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
   def errorsFromServiceTester(error: MtdError, expectedStatus: Int): Unit = {
     s"a ${error.code} error is returned from the service" in new Test {
 
-      val amendDividendsRequestRawData =
+      val amendDividendsRequestRawData: AmendDividendsRequestRawData =
         AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson))
 
       MockAmendDividendsRequestDataParser.parse(amendDividendsRequestRawData)
         .returns(Right(amendDividendsRequest))
 
       MockDividendsService.amend(amendDividendsRequest)
-        .returns(Future.successful(Left(ErrorWrapper(Some(correlationId), error, None))))
+        .returns(Future.successful(Left(ErrorWrapper(correlationId, error, None))))
 
       val response: Future[Result] = target.amend(nino, taxYear)(fakePostRequest[JsValue](DividendsFixture.mtdFormatJson))
 
@@ -223,7 +228,7 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
 
   private def auditEventFor(error: MtdError, expectedStatus: Int,
                             correlationId: String,
-                            request: JsValue) = {
+                            request: JsValue): AuditEvent[DividendsIncomeAuditDetail] = {
     val auditResponse = new AuditResponse(expectedStatus, Seq(AuditError(s"${error.code}")))
 
     val auditErrorDetail = new DividendsIncomeAuditDetail("Individual", None,
@@ -233,4 +238,3 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
       "update-dividends-annual-summary", auditErrorDetail)
   }
 }
-

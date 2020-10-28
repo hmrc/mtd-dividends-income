@@ -29,6 +29,7 @@ import v2.models.auth.UserDetails
 import v2.models.errors._
 import v2.models.requestData.AmendDividendsRequestRawData
 import v2.services.{AuditService, DividendsService, EnrolmentsAuthService, MtdIdLookupService}
+import v2.utils.IdGenerator
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,14 +39,21 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
                                          dividendsService: DividendsService,
                                          amendDividendsRequestDataParser: AmendDividendsRequestDataParser,
                                          auditService: AuditService,
-                                         cc: ControllerComponents
-                                        )(implicit ec: ExecutionContext) extends AuthorisedController(cc) with BaseController {
+                                         cc: ControllerComponents,
+                                         val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
+  extends AuthorisedController(cc) with BaseController {
 
   implicit val endpointLogContext: EndpointLogContext =
     EndpointLogContext(controllerName = "AmendDividendsController", endpointName = "amend")
 
-  def amend(nino: String, taxYear: String): Action[JsValue] = authorisedAction(nino).async(parse.json) {
-    implicit request =>
+  def amend(nino: String, taxYear: String): Action[JsValue] =
+    authorisedAction(nino).async(parse.json) { implicit request =>
+
+      implicit val correlationId: String = idGenerator.generateCorrelationId
+      logger.info(
+        s"[${endpointLogContext.controllerName}][${endpointLogContext.endpointName}] " +
+          s"with CorrelationId: $correlationId")
+
       val rawData = AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(request.body))
       val result =
         for {
@@ -62,13 +70,17 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
         }
 
       result.leftMap { errorWrapper =>
-        val correlationId = getCorrelationId(errorWrapper)
-        val result: Result = processError(errorWrapper).withHeaders("X-CorrelationId" -> correlationId)
+        val resCorrelationId = errorWrapper.correlationId
+        val result = processError(errorWrapper).withHeaders("X-CorrelationId" -> resCorrelationId)
+        logger.info(
+          s"[${endpointLogContext.controllerName}][${endpointLogContext.endpointName}] - " +
+            s"Error response received with CorrelationId: $resCorrelationId")
+
         auditSubmission(createAuditDetails(nino, taxYear,
-          result.header.status, request.request.body, correlationId, request.userDetails, Some(errorWrapper)))
+          result.header.status, request.request.body, resCorrelationId, request.userDetails, Some(errorWrapper)))
         result
       }.merge
-  }
+    }
 
   private def processError(errorWrapper: ErrorWrapper) = {
     errorWrapper.error match {
@@ -92,7 +104,7 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
                                  dividends: JsValue,
                                  correlationId: String,
                                  userDetails: UserDetails,
-                                 errorWrapper: Option[ErrorWrapper] = None) = {
+                                 errorWrapper: Option[ErrorWrapper] = None): DividendsIncomeAuditDetail = {
 
     val auditResponse = errorWrapper.map { x =>
       AuditResponse(statusCode, x.allErrors.map(e => AuditError(e.code)))
@@ -115,7 +127,3 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
     auditService.auditEvent(event)
   }
 }
-
-
-
-

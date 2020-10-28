@@ -30,7 +30,10 @@ class DividendsService @Inject()(desConnector: DesConnector) {
 
   val logger: Logger = Logger(this.getClass)
 
-  def amend(amendDividendsRequest: AmendDividendsRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AmendDividendsOutcome] = {
+  def amend(amendDividendsRequest: AmendDividendsRequest)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext,
+    correlationId: String): Future[AmendDividendsOutcome] = {
 
     desConnector.amend(amendDividendsRequest).map {
 
@@ -40,17 +43,20 @@ class DividendsService @Inject()(desConnector: DesConnector) {
         if (mtdErrors.contains(DownstreamError)) {
           logger.info(s"[DividendsIncomeService] [amend] [CorrelationId - $correlationId]" +
             s" - downstream returned INVALID_IDTYPE or NOT_FOUND_PERIOD. Revert to ISE")
-          Left(ErrorWrapper(Some(correlationId), DownstreamError, None))
+          Left(ErrorWrapper(correlationId, DownstreamError, None))
         } else {
-          Left(ErrorWrapper(Some(correlationId), BadRequestError, Some(mtdErrors)))
+          Left(ErrorWrapper(correlationId, BadRequestError, Some(mtdErrors)))
         }
-      case Left(DesResponse(correlationId, SingleError(error))) => Left(ErrorWrapper(Some(correlationId), desErrorToMtdErrorAmend(error.code), None))
-      case Left(DesResponse(correlationId, GenericError(error))) => Left(ErrorWrapper(Some(correlationId), error, None))
-      case Left(_@e) => Left(ErrorWrapper(Some(e.correlationId), DownstreamError, None))
+      case Left(DesResponse(correlationId, SingleError(error))) => Left(ErrorWrapper(correlationId, desErrorToMtdErrorAmend(error.code), None))
+      case Left(DesResponse(correlationId, GenericError(error))) => Left(ErrorWrapper(correlationId, error, None))
+      case Left(_@e) => Left(ErrorWrapper(e.correlationId, DownstreamError, None))
     }
   }
 
-  def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RetrieveDividendsOutcome] = {
+  def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext,
+    correlationId: String): Future[RetrieveDividendsOutcome] = {
 
     desConnector.retrieve(retrieveDividendsRequest).map {
 
@@ -60,13 +66,13 @@ class DividendsService @Inject()(desConnector: DesConnector) {
         if (mtdErrors.contains(DownstreamError)) {
           logger.info(s"[DividendsIncomeService] [retrieve] [CorrelationId - $correlationId]" +
             s" - downstream returned INVALID_IDTYPE, INVALID_INCOME_SOURCE or NOT_FOUND_PERIOD. Revert to ISE")
-          Left(ErrorWrapper(Some(correlationId), DownstreamError, None))
+          Left(ErrorWrapper(correlationId, DownstreamError, None))
         } else {
-          Left(ErrorWrapper(Some(correlationId), BadRequestError, Some(mtdErrors)))
+          Left(ErrorWrapper(correlationId, BadRequestError, Some(mtdErrors)))
         }
-      case Left(DesResponse(correlationId, SingleError(error))) => Left(ErrorWrapper(Some(correlationId), desErrorToMtdErrorRetrieve(error.code), None))
-      case Left(DesResponse(correlationId, GenericError(error))) => Left(ErrorWrapper(Some(correlationId), error, None))
-      case Left(_@e) => Left(ErrorWrapper(Some(e.correlationId), DownstreamError, None))
+      case Left(DesResponse(correlationId, SingleError(error))) => Left(ErrorWrapper(correlationId, desErrorToMtdErrorRetrieve(error.code), None))
+      case Left(DesResponse(correlationId, GenericError(error))) => Left(ErrorWrapper(correlationId, error, None))
+      case Left(_@e) => Left(ErrorWrapper(e.correlationId, DownstreamError, None))
     }
   }
 
