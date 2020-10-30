@@ -41,20 +41,20 @@ class AuditServiceSpec extends ServiceSpec {
   }
 
   "Auditing an event" should {
-    val transactionName = "some-transaction-name"
-    val auditType = "some-audit-type"
-    val eventDetails = "some data"
+    val transactionName: String = "some-transaction-name"
+    val auditType: String = "some-audit-type"
+    val eventDetails: String = "some data"
     val expected: Future[AuditResult] = Future.successful(Success)
 
     "return a successful audit result" in new Test {
       val expected: Future[AuditResult] = Future.successful(Success)
-      val eventDetails = "some data"
+      val eventDetails: String = "some data"
 
       (mockAuditConnector.sendExtendedEvent(_: ExtendedDataEvent)(_: HeaderCarrier, _: ExecutionContext))
         .expects(*, *, *)
         .returns(expected)
 
-      val event = AuditEvent("test-type", "transaction-name", eventDetails)
+      val event: AuditEvent[String] = AuditEvent("test-type", "transaction-name", eventDetails)
 
       target.auditEvent(event) shouldBe expected
     }
@@ -69,7 +69,7 @@ class AuditServiceSpec extends ServiceSpec {
         )
         .returns(expected)
 
-      val event = AuditEvent(auditType, transactionName, eventDetails)
+      val event: AuditEvent[String] = AuditEvent(auditType, transactionName, eventDetails)
 
       target.auditEvent(event)
     }
@@ -84,7 +84,7 @@ class AuditServiceSpec extends ServiceSpec {
         )
         .returns(expected)
 
-      val event = AuditEvent(auditType, transactionName, eventDetails)
+      val event: AuditEvent[String] = AuditEvent(auditType, transactionName, eventDetails)
 
       target.auditEvent(event)
     }
@@ -99,7 +99,7 @@ class AuditServiceSpec extends ServiceSpec {
         )
         .returns(expected)
 
-      val event = AuditEvent(auditType, transactionName, eventDetails)
+      val event: AuditEvent[String] = AuditEvent(auditType, transactionName, eventDetails)
 
       target.auditEvent(event)
     }
@@ -114,7 +114,7 @@ class AuditServiceSpec extends ServiceSpec {
         )
         .returns(expected)
 
-      val event = AuditEvent(auditType, transactionName, eventDetails)
+      val event: AuditEvent[String] = AuditEvent(auditType, transactionName, eventDetails)
 
       target.auditEvent(event)
     }

@@ -26,6 +26,7 @@ import v2.controllers.requestParsers.RetrieveDividendsRequestDataParser
 import v2.models.errors._
 import v2.models.requestData.RetrieveDividendsRequestRawData
 import v2.services.{AuditService, DividendsService, EnrolmentsAuthService, MtdIdLookupService}
+import v2.utils.IdGenerator
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,34 +36,46 @@ class RetrieveDividendsController @Inject()(val authService: EnrolmentsAuthServi
                                             dividendsService: DividendsService,
                                             retrieveDividendsRequestDataParser: RetrieveDividendsRequestDataParser,
                                             auditService: AuditService,
-                                            cc: ControllerComponents
-                                           )(implicit ec: ExecutionContext) extends AuthorisedController(cc) with BaseController {
+                                            cc: ControllerComponents,
+                                            val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
+  extends AuthorisedController(cc) with BaseController {
 
   implicit val endpointLogContext: EndpointLogContext =
     EndpointLogContext(controllerName = "RetrieveDividendsController", endpointName = "retrieve")
 
-  def retrieve(nino: String, taxYear: String): Action[AnyContent] = authorisedAction(nino).async { implicit request =>
+  def retrieve(nino: String, taxYear: String): Action[AnyContent] =
+    authorisedAction(nino).async { implicit request =>
 
-    val rawData = RetrieveDividendsRequestRawData(nino, taxYear)
-    val result =
-      for {
-        parsedRequest <- EitherT.fromEither[Future](retrieveDividendsRequestDataParser.parse(rawData))
-        vendorResponse <- EitherT(dividendsService.retrieve(parsedRequest))
-      } yield {
+      implicit val correlationId: String = idGenerator.generateCorrelationId
+      logger.info(
+        s"[${endpointLogContext.controllerName}][${endpointLogContext.endpointName}] " +
+          s"with CorrelationId: $correlationId")
+
+      val rawData = RetrieveDividendsRequestRawData(nino, taxYear)
+      val result =
+        for {
+          parsedRequest <- EitherT.fromEither[Future](retrieveDividendsRequestDataParser.parse(rawData))
+          vendorResponse <- EitherT(dividendsService.retrieve(parsedRequest))
+        } yield {
+          logger.info(
+            s"[${endpointLogContext.controllerName}][${endpointLogContext.endpointName}] - " +
+              s"Success response received with CorrelationId: ${vendorResponse.correlationId}")
+
+          Ok(Json.toJson(vendorResponse.responseData))
+            .withApiHeaders(vendorResponse.correlationId)
+            .as(MimeTypes.JSON)
+        }
+
+      result.leftMap { errorWrapper =>
+        val resCorrelationId = errorWrapper.correlationId
+        val result = errorResult(errorWrapper).withApiHeaders(resCorrelationId)
         logger.info(
           s"[${endpointLogContext.controllerName}][${endpointLogContext.endpointName}] - " +
-            s"Success response received with CorrelationId: ${vendorResponse.correlationId}")
+            s"Error response received with CorrelationId: $resCorrelationId")
 
-        Ok(Json.toJson(vendorResponse.responseData))
-          .withApiHeaders(vendorResponse.correlationId)
-          .as(MimeTypes.JSON)
-      }
-
-    result.leftMap { errorWrapper =>
-      val correlationId = getCorrelationId(errorWrapper)
-      errorResult(errorWrapper).withApiHeaders(correlationId)
-    }.merge
-  }
+        result
+      }.merge
+    }
 
   private def errorResult(errorWrapper: ErrorWrapper) = {
     errorWrapper.error match {
@@ -77,7 +90,3 @@ class RetrieveDividendsController @Inject()(val authService: EnrolmentsAuthServi
     }
   }
 }
-
-
-
-

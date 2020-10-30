@@ -24,11 +24,11 @@ import v2.models.requestData.{RetrieveDividendsRequest, RetrieveDividendsRequest
 
 trait MockRetrieveDividendsRequestDataParser extends MockFactory {
 
-  val mockRetrieveDividendsRequestDataParser = mock[RetrieveDividendsRequestDataParser]
+  val mockRetrieveDividendsRequestDataParser: RetrieveDividendsRequestDataParser = mock[RetrieveDividendsRequestDataParser]
 
   object MockRetrieveDividendsRequestDataParser {
     def parse(data: RetrieveDividendsRequestRawData): CallHandler[Either[ErrorWrapper, RetrieveDividendsRequest]] = {
-      (mockRetrieveDividendsRequestDataParser.parse(_:RetrieveDividendsRequestRawData)).expects(data)
+      (mockRetrieveDividendsRequestDataParser.parse(_:RetrieveDividendsRequestRawData)(_: String)).expects(data, *)
     }
   }
 }

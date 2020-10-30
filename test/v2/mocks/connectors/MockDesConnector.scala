@@ -32,14 +32,14 @@ class MockDesConnector extends MockFactory {
   object MockDesConnector {
 
     def amend(amendDividendsRequest: AmendDividendsRequest): CallHandler[Future[AmendDividendsConnectorOutcome]] = {
-      (connector.amend(_: AmendDividendsRequest)(_: HeaderCarrier, _: ExecutionContext))
-        .expects(amendDividendsRequest, *, *)
+      (connector.amend(_: AmendDividendsRequest)(_: HeaderCarrier, _: ExecutionContext, _: String))
+        .expects(amendDividendsRequest, *, *, *)
     }
 
 
     def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest): CallHandler[Future[RetrieveDividendsConnectorOutcome]] = {
-      (connector.retrieve(_: RetrieveDividendsRequest)(_: HeaderCarrier, _: ExecutionContext))
-        .expects(retrieveDividendsRequest, *, *)
+      (connector.retrieve(_: RetrieveDividendsRequest)(_: HeaderCarrier, _: ExecutionContext, _: String))
+        .expects(retrieveDividendsRequest, *, *, *)
     }
   }
 

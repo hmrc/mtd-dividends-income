@@ -29,7 +29,6 @@ import scala.concurrent.Future
 class DesConnectorSpec extends ConnectorSpec {
 
   lazy val baseUrl = "test-BaseUrl"
-  val correlationId = "X-123"
 
   trait Test extends MockHttpClient with MockAppConfig {
     val connector = new DesConnector(
@@ -45,10 +44,10 @@ class DesConnectorSpec extends ConnectorSpec {
   "calling amend" should {
     "return successful response" when {
       "valid data is supplied" in new Test {
-        val nino = "AA123456A"
-        val desTaxYear = "2019"
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
-        val transactionReference = "000000000001"
+        val nino: String = "AA123456A"
+        val desTaxYear: String = "2019"
+        val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
+        val transactionReference: String = "000000000001"
         val expectedResult: DesResponse[String] = DesResponse[String](correlationId, transactionReference)
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
@@ -64,16 +63,16 @@ class DesConnectorSpec extends ConnectorSpec {
     "return error response with CorrelationId and tax year format error" when {
       "the request supplied has invalid tax year" in new Test {
 
-        val expectedDesResponse = DesResponse(correlationId, SingleError(TaxYearFormatError))
-        val nino = "AA123456A"
-        val taxYear = "2018-19"
+        val expectedDesResponse: DesResponse[SingleError] = DesResponse(correlationId, SingleError(TaxYearFormatError))
+        val nino: String = "AA123456A"
+        val taxYear: String = "2018-19"
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
           s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}",
           DividendsFixture.dividendsModel)
           .returns(Future.successful(Left(expectedDesResponse)))
 
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
+        val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
 
         val result: AmendDividendsConnectorOutcome = await(connector.amend(amendDividendsRequest))
 
@@ -84,16 +83,16 @@ class DesConnectorSpec extends ConnectorSpec {
     "return response with multiple errors and CorrelationId" when {
       "an request supplied with invalid tax year and invalid Nino " in new Test {
 
-        val expectedDesResponse = DesResponse(correlationId, MultipleErrors(Seq(TaxYearFormatError, NinoFormatError)))
-        val nino = "AA123456A"
-        val taxYear = "2018-19"
+        val expectedDesResponse: DesResponse[MultipleErrors] = DesResponse(correlationId, MultipleErrors(Seq(TaxYearFormatError, NinoFormatError)))
+        val nino: String = "AA123456A"
+        val taxYear: String = "2018-19"
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
           s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}",
           DividendsFixture.dividendsModel)
           .returns(Future.successful(Left(expectedDesResponse)))
 
-        val amendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
+        val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear), DividendsFixture.dividendsModel)
 
         val result: AmendDividendsConnectorOutcome = await(connector.amend(amendDividendsRequest))
 
@@ -107,17 +106,17 @@ class DesConnectorSpec extends ConnectorSpec {
     "return successful response" when {
       "valid data is supplied" in new Test {
 
-        val nino = "AA123456A"
-        val desTaxYear = "2019"
-        val expectedResult = DesResponse(correlationId, DividendsFixture.dividendsModel)
+        val nino: String = "AA123456A"
+        val desTaxYear: String = "2019"
+        val expectedResult: DesResponse[Dividends] = DesResponse(correlationId, DividendsFixture.dividendsModel)
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
           s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear")
           .returns(Future.successful(Right(expectedResult)))
 
-        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
+        val retrieveDividends: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
 
-        val result = await(connector.retrieve(retrieveDividends))
+        val result: RetrieveDividendsConnectorOutcome = await(connector.retrieve(retrieveDividends))
 
         result shouldBe Right(expectedResult)
 
@@ -126,16 +125,16 @@ class DesConnectorSpec extends ConnectorSpec {
     "return an error response with CorrelationId" when {
       "an request supplied with invalid tax year" in new Test {
 
-        val expectedDesResponse = DesResponse("X-123", SingleError(TaxYearFormatError))
-        val nino = "AA123456A"
-        val taxYear = "1111-12"
+        val expectedDesResponse: DesResponse[SingleError] = DesResponse("X-123", SingleError(TaxYearFormatError))
+        val nino: String = "AA123456A"
+        val taxYear: String = "1111-12"
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
           s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}")
           .returns(Future.successful(Left(expectedDesResponse)))
 
-        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
-        val result = await(connector.retrieve(retrieveDividends))
+        val retrieveDividends: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
+        val result: RetrieveDividendsConnectorOutcome  = await(connector.retrieve(retrieveDividends))
 
         result shouldBe Left(expectedDesResponse)
       }
@@ -144,17 +143,17 @@ class DesConnectorSpec extends ConnectorSpec {
     "return a response with multiple errors and CorrelationId" when {
       "an request supplied with invalid tax year and invalid Nino " in new Test {
 
-        val expectedDesResponse = DesResponse("X-123", MultipleErrors(Seq(TaxYearFormatError, NinoFormatError)))
-        val nino = "AA123456A"
-        val taxYear = "1111-12"
+        val expectedDesResponse: DesResponse[MultipleErrors] = DesResponse("X-123", MultipleErrors(Seq(TaxYearFormatError, NinoFormatError)))
+        val nino: String = "AA123456A"
+        val taxYear: String = "1111-12"
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
           s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}")
           .returns(Future.successful(Left(expectedDesResponse)))
 
 
-        val retrieveDividends = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
-        val result = await(connector.retrieve(retrieveDividends))
+        val retrieveDividends: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
+        val result: RetrieveDividendsConnectorOutcome = await(connector.retrieve(retrieveDividends))
 
         result shouldBe Left(expectedDesResponse)
       }

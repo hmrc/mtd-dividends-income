@@ -33,7 +33,7 @@ class DividendsISpec extends IntegrationBaseSpec {
 
     val nino: String
     val taxYear: String
-    val correlationId = "X-123"
+    val correlationId: String = "X-123"
 
     def setupStubs(): StubMapping
 
@@ -115,7 +115,7 @@ class DividendsISpec extends IntegrationBaseSpec {
 
         val response: WSResponse = await(request().put(DividendsFixture.mtdFormatJson))
         response.status shouldBe Status.BAD_REQUEST
-        response.json shouldBe Json.toJson(ErrorWrapper(None, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError))))
+        response.json shouldBe Json.toJson(ErrorWrapper(correlationId, BadRequestError, Some(Seq(NinoFormatError, TaxYearFormatError))))
       }
 
     }
@@ -184,7 +184,7 @@ class DividendsISpec extends IntegrationBaseSpec {
 
         val response: WSResponse = await(request().put(emptyRuleError))
         response.status shouldBe Status.BAD_REQUEST
-        response.json shouldBe Json.toJson(ErrorWrapper(None, EmptyOrNonMatchingBodyRuleError, None))
+        response.json shouldBe Json.toJson(ErrorWrapper(correlationId, EmptyOrNonMatchingBodyRuleError, None))
       }
 
       s"incorrect body is supplied" in new Test {
@@ -206,7 +206,7 @@ class DividendsISpec extends IntegrationBaseSpec {
 
         val response: WSResponse = await(request().put(requestBody))
         response.status shouldBe Status.BAD_REQUEST
-        response.json shouldBe Json.toJson(ErrorWrapper(None, EmptyOrNonMatchingBodyRuleError, None))
+        response.json shouldBe Json.toJson(ErrorWrapper(correlationId, EmptyOrNonMatchingBodyRuleError, None))
       }
     }
   }

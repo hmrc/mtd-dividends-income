@@ -24,11 +24,11 @@ import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawDat
 
 trait MockAmendDividendsRequestDataParser extends MockFactory {
 
-  val mockAmendDividendsRequestDataParser = mock[AmendDividendsRequestDataParser]
+  val mockAmendDividendsRequestDataParser: AmendDividendsRequestDataParser = mock[AmendDividendsRequestDataParser]
 
   object MockAmendDividendsRequestDataParser {
     def parse(data: AmendDividendsRequestRawData): CallHandler[Either[ErrorWrapper, AmendDividendsRequest]] = {
-      (mockAmendDividendsRequestDataParser.parse(_:AmendDividendsRequestRawData)).expects(data)
+      (mockAmendDividendsRequestDataParser.parse(_:AmendDividendsRequestRawData)(_: String)).expects(data, *)
     }
   }
 }

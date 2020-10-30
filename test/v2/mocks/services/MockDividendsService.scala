@@ -31,13 +31,13 @@ trait MockDividendsService extends MockFactory{
 
   object MockDividendsService {
     def amend(DividendsRequest: AmendDividendsRequest): CallHandler[Future[AmendDividendsOutcome]] = {
-      (mockDividendsService.amend(_:AmendDividendsRequest)(_: HeaderCarrier, _: ExecutionContext))
-        .expects(DividendsRequest, *, *)
+      (mockDividendsService.amend(_:AmendDividendsRequest)(_: HeaderCarrier, _: ExecutionContext, _:String))
+        .expects(DividendsRequest, *, *, *)
     }
 
     def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest): CallHandler[Future[RetrieveDividendsOutcome]] = {
-      (mockDividendsService.retrieve(_: RetrieveDividendsRequest)(_: HeaderCarrier, _: ExecutionContext))
-        .expects(retrieveDividendsRequest, *, *)
+      (mockDividendsService.retrieve(_: RetrieveDividendsRequest)(_: HeaderCarrier, _: ExecutionContext, _:String))
+        .expects(retrieveDividendsRequest, *, *, *)
     }
   }
 
