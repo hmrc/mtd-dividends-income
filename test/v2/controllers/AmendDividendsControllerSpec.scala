@@ -29,6 +29,7 @@ import v2.mocks.services.{MockAuditService, MockDividendsService, MockEnrolments
 import v2.models.Dividends
 import v2.models.audit._
 import v2.models.errors._
+import v2.models.outcomes.DesResponse
 import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -81,7 +82,7 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
           .returns(Right(amendDividendsRequest))
 
         MockDividendsService.amend(amendDividendsRequest)
-          .returns(Future.successful(Right(correlationId)))
+          .returns(Future.successful(Right(DesResponse(correlationId, "X-123"))))
 
         val result: Future[Result] = target.amend(nino, taxYear)(fakePostRequest(DividendsFixture.mtdFormatJson))
         status(result) shouldBe NO_CONTENT

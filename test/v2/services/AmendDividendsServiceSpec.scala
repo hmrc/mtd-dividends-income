@@ -37,7 +37,7 @@ class AmendDividendsServiceSpec extends ServiceSpec {
     "return a valid CorrelationId" when {
       "a valid request is passed" in new Test{
         val desTaxYear: String = "2019"
-        val expectedResult: String = correlationId
+        val expectedResult = DesResponse(correlationId,"ref")
         val amendDividendsRequest: AmendDividendsRequest = AmendDividendsRequest(Nino(nino), DesTaxYear(desTaxYear), DividendsFixture.dividendsModel)
         MockDesConnector.amend(amendDividendsRequest).returns(Future.successful(Right(DesResponse(correlationId, "ref"))))
 
