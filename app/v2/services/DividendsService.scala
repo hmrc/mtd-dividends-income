@@ -37,7 +37,7 @@ class DividendsService @Inject()(desConnector: DesConnector) {
 
     desConnector.amend(amendDividendsRequest).map {
 
-      case Right(desResponse) => Right(desResponse.correlationId)
+      case Right(desResponse) => Right(desResponse)
       case Left(DesResponse(correlationId, MultipleErrors(errors))) =>
         val mtdErrors = errors.map(error => desErrorToMtdErrorAmend(error.code))
         if (mtdErrors.contains(DownstreamError)) {

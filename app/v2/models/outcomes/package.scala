@@ -25,7 +25,7 @@ package object outcomes {
   type MtdIdLookupOutcome = Either[MtdError, String]
 
   type AmendDividendsConnectorOutcome = Either[DesResponse[DesError], DesResponse[String]]
-  type AmendDividendsOutcome = Either[ErrorWrapper, String]
+  type AmendDividendsOutcome = Either[ErrorWrapper, DesResponse[String]]
 
 
   type RetrieveDividendsConnectorOutcome = Either[DesResponse[DesError], DesResponse[Dividends]]

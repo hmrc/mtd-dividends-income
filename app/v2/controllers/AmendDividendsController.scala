@@ -58,15 +58,15 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
       val result =
         for {
           parsedRequest <- EitherT.fromEither[Future](amendDividendsRequestDataParser.parse(rawData))
-          correlationId <- EitherT(dividendsService.amend(parsedRequest))
+          desResponse <- EitherT(dividendsService.amend(parsedRequest))
         } yield {
           logger.info(
             s"[${endpointLogContext.controllerName}][${endpointLogContext.endpointName}] - " +
-              s"Success response received with CorrelationId: ${correlationId}")
-          auditSubmission(createAuditDetails(nino, taxYear, NO_CONTENT, request.request.body, correlationId, request.userDetails))
+              s"Success response received with CorrelationId: ${desResponse.correlationId}")
+          auditSubmission(createAuditDetails(nino, taxYear, NO_CONTENT, request.request.body, desResponse.responseData, request.userDetails))
 
           NoContent
-            .withApiHeaders(correlationId)
+            .withApiHeaders(desResponse.responseData)
         }
 
       result.leftMap { errorWrapper =>
