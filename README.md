@@ -1,12 +1,30 @@
-# mtd-dividends-income
+mtd-dividends-income
+========================
 
-[![Apache-2.0 license](http://img.shields.io/badge/license-Apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-[![Download](https://api.bintray.com/packages/hmrc/releases/mtd-dividends-income/images/download.svg) ](https://bintray.com/hmrc/releases/mtd-dividends-income/_latestVersion)
+[![Apache-2.0 license](http://img.shields.io/badge/license-Apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-This service manages the mtd-dividends-income.
+The MTD Dividends Income microservice allows a developer to:
+- amend a UK dividends income annual summary
+- retrieve a UK dividends income annual summary
 
-sbt "~run 9775"
+## Requirements
+- Scala 2.12.x
+- Java 8
+- sbt 1.3.13
+- [Service Manager](https://github.com/hmrc/service-manager)
 
-### License
+## Development Setup
+Run the microservice from the console using: `sbt run` (starts on port 9775 by default)
 
+Start the service manager profile: `sm --start MTDFB_SA_DIV`
+ 
+## Run Tests
+Run unit tests: `sbt test`
+
+Run integration tests: `sbt it:test`
+
+## Reporting Issues
+You can create a GitHub issue [here](https://github.com/hmrc/mtd-dividends-income/issues)
+
+## License
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
