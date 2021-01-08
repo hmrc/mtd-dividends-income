@@ -25,7 +25,7 @@ import support.IntegrationBaseSpec
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.models.errors._
 import v2.models.requestData.DesTaxYear
-import v2.stubs.{AuditStub, AuthStub, DesStub, MtdIdLookupStub}
+import v2.stubs.{AuditStub, AuthStub, DesStub, MtdIdLookupStub, NrsStub}
 
 class DividendsISpec extends IntegrationBaseSpec {
 
@@ -51,10 +51,20 @@ class DividendsISpec extends IntegrationBaseSpec {
         override val nino: String = "AA123456A"
         override val taxYear: String = "2018-19"
 
+        val nrsSuccess: JsValue = Json.parse(
+          s"""
+             |{
+             |  "nrSubmissionId":"2dd537bc-4244-4ebf-bac9-96321be13cdc",
+             |  "cadesTSignature":"30820b4f06092a864886f70111111111c0445c464",
+             |  "timestamp":""
+             |}
+         """.stripMargin)
+
         override def setupStubs(): StubMapping = {
           AuditStub.audit()
           AuthStub.authorised()
           MtdIdLookupStub.ninoFound(nino)
+          NrsStub.onSuccess(NrsStub.POST, s"/mtd-api-nrs-proxy/$nino/mtd-dividends-income", ACCEPTED, nrsSuccess)
           DesStub.amendSuccess(nino, DesTaxYear.fromMtd(taxYear))
         }
 

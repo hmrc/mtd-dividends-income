@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@ import cats.data.EitherT
 import cats.implicits._
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContentAsJson, ControllerComponents, _}
+import play.api.mvc.{Action, AnyContentAsJson, ControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import v2.connectors.NrsProxyConnector
 import v2.controllers.requestParsers.AmendDividendsRequestDataParser
 import v2.models.audit.{AuditError, AuditEvent, AuditResponse, DividendsIncomeAuditDetail}
 import v2.models.auth.UserDetails
@@ -39,6 +40,7 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
                                          dividendsService: DividendsService,
                                          amendDividendsRequestDataParser: AmendDividendsRequestDataParser,
                                          auditService: AuditService,
+                                         nrsProxy: NrsProxyConnector,
                                          cc: ControllerComponents,
                                          val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
   extends AuthorisedController(cc) with BaseController {
@@ -58,7 +60,10 @@ class AmendDividendsController @Inject()(val authService: EnrolmentsAuthService,
       val result =
         for {
           parsedRequest <- EitherT.fromEither[Future](amendDividendsRequestDataParser.parse(rawData))
-          desResponse <- EitherT(dividendsService.amend(parsedRequest))
+          desResponse <- {
+            nrsProxy.submit(nino, parsedRequest.model)
+            EitherT(dividendsService.amend(parsedRequest))
+          }
         } yield {
           logger.info(
             s"[${endpointLogContext.controllerName}][${endpointLogContext.endpointName}] - " +

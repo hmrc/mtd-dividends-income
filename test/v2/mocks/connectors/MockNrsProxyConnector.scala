@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package v2.mocks.services
+package v2.mocks.connectors
 
 import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.http.HeaderCarrier
-import v2.models.outcomes.MtdIdLookupOutcome
-import v2.services.MtdIdLookupService
+import v2.connectors.NrsProxyConnector
+import v2.models.Dividends
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockMtdIdLookupService extends MockFactory {
+trait MockNrsProxyConnector extends MockFactory {
 
-  val mockMtdIdLookupService: MtdIdLookupService = mock[MtdIdLookupService]
+  val mockNrsProxyConnector: NrsProxyConnector = mock[NrsProxyConnector]
 
-  object MockedMtdIdLookupService {
-    def lookup(nino: String): CallHandler[Future[MtdIdLookupOutcome]] = {
-      (mockMtdIdLookupService.lookup(_: String)(_: HeaderCarrier, _: ExecutionContext))
-        .expects(nino, *, *)
+  object MockNrsProxyConnector {
+    def submit(nino: String, dividends: Dividends): CallHandler[Future[Unit]] = {
+      (mockNrsProxyConnector.submit(_: String, _: Dividends)(_: HeaderCarrier, _: ExecutionContext))
+        .expects(nino, *, *, *)
     }
   }
 

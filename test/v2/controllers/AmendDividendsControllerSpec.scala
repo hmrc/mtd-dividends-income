@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.MockIdGenerator
+import v2.mocks.connectors.MockNrsProxyConnector
 import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetrieveDividendsRequestDataParser}
 import v2.mocks.services.{MockAuditService, MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.Dividends
@@ -43,7 +44,8 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
   with MockRetrieveDividendsRequestDataParser
   with MockAuditService
   with OneInstancePerTest
-  with MockIdGenerator {
+  with MockIdGenerator
+  with MockNrsProxyConnector {
 
   val nino: String = "AA123456A"
   val taxYear: String = "2017-18"
@@ -59,6 +61,7 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
       dividendsService = mockDividendsService,
       amendDividendsRequestDataParser = mockAmendDividendsRequestDataParser,
       auditService = mockAuditService,
+      nrsProxy = mockNrsProxyConnector,
       cc = cc,
       idGenerator = mockIdGenerator
     )
@@ -80,6 +83,8 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
         MockAmendDividendsRequestDataParser.parse(
           AmendDividendsRequestRawData(nino, taxYear, AnyContentAsJson(DividendsFixture.mtdFormatJson)))
           .returns(Right(amendDividendsRequest))
+
+        MockNrsProxyConnector.submit(nino, DividendsFixture.dividendsModel).returns(Future.successful((): Unit))
 
         MockDividendsService.amend(amendDividendsRequest)
           .returns(Future.successful(Right(DesResponse(correlationId, "X-123"))))
@@ -213,6 +218,8 @@ class AmendDividendsControllerSpec extends ControllerBaseSpec
 
       MockAmendDividendsRequestDataParser.parse(amendDividendsRequestRawData)
         .returns(Right(amendDividendsRequest))
+
+      MockNrsProxyConnector.submit(nino, DividendsFixture.dividendsModel).returns(Future.successful((): Unit))
 
       MockDividendsService.amend(amendDividendsRequest)
         .returns(Future.successful(Left(ErrorWrapper(correlationId, error, None))))

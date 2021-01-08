@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ trait AppConfig {
 
   def mtdIdBaseUrl: String
 
+  def mtdNrsProxyBaseUrl: String
+
   def desEnv: String
 
   def desToken: String
@@ -35,6 +37,7 @@ class AppConfigImpl @Inject()(config: ServicesConfig) extends AppConfig {
 
 
   val mtdIdBaseUrl: String = config.baseUrl("mtd-id-lookup")
+  val mtdNrsProxyBaseUrl: String = config.baseUrl("mtd-api-nrs-proxy")
   val desBaseUrl: String = config.baseUrl("des")
   val desEnv: String = config.getString("microservice.services.des.env")
   val desToken: String = config.getString("microservice.services.des.token")

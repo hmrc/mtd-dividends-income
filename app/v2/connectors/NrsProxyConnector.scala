@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package v2.services
+package v2.connectors
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
-import v2.connectors.MtdIdLookupConnector
-import v2.models.errors.NinoFormatError
-import v2.models.outcomes.MtdIdLookupOutcome
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads, HttpResponse}
+import v2.config.AppConfig
+import v2.models.Dividends
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class MtdIdLookupService @Inject()(val connector: MtdIdLookupConnector) {
+class NrsProxyConnector @Inject()(http: HttpClient,
+                                  appConfig: AppConfig) {
 
-  def lookup(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MtdIdLookupOutcome] = {
-    if (Nino.isValid(nino)) {
-      connector.getMtdId(nino)
-    } else {
-      Future.successful(Left(NinoFormatError))
-    }
+  def submit[T](nino: String, dividends: Dividends)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
+    import v2.models.Dividends.writes
+    implicit val readsEmpty: HttpReads[Unit] =
+      (method: String, url: String, response: HttpResponse) => ()
+    http.POST[Dividends, Unit](s"${appConfig.mtdNrsProxyBaseUrl}/mtd-api-nrs-proxy/$nino/mtd-dividends-income", dividends)
   }
 }
