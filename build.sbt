@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(majorVersion := 0)
   .settings(publishingSettings: _*)
   .settings(CodeCoverageSettings.settings: _*)
-  .settings(defaultSettings(): _*)
+  .settings(inConfig(ItTest)(Defaults.itSettings ++ headerSettings(ItTest) ++ automateHeaderSettings(ItTest)))
   .configs(ItTest)
   .settings(inConfig(ItTest)(Defaults.itSettings): _*)
   .settings(
