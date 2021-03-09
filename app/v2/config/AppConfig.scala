@@ -28,6 +28,8 @@ trait AppConfig {
   def desEnv: String
 
   def desToken: String
+
+  def authServiceValidationEnabled: Boolean
 }
 
 @Singleton
@@ -38,6 +40,8 @@ class AppConfigImpl @Inject()(config: ServicesConfig) extends AppConfig {
   val desBaseUrl: String = config.baseUrl("des")
   val desEnv: String = config.getString("microservice.services.des.env")
   val desToken: String = config.getString("microservice.services.des.token")
+
+  val authServiceValidationEnabled: Boolean = config.getBoolean(s"api.confidence-level-check.auth-validation.enabled")
 
 }
 
