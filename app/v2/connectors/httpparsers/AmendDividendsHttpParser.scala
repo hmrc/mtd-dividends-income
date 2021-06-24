@@ -25,8 +25,7 @@ import v2.models.outcomes.{AmendDividendsConnectorOutcome, DesResponse}
 
 object AmendDividendsHttpParser extends HttpParser {
 
-  val logger = Logger(this.getClass)
-
+  override val logger: Logger = Logger(this.getClass)
 
   private val jsonReads: Reads[String] = (__ \ "transactionReference").read[String]
 

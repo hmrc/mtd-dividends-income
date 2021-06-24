@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package v2.models.requestData
+package v2.connectors
 
-import v2.models.domain.Nino
+trait BackendUri[Resp] {
+  val value: String
+}
 
+object BackendUri {
 
-case class RetrieveDividendsRequest(nino: Nino, desTaxYear: DesTaxYear)
+  case class DesUri[Resp](value: String) extends BackendUri[Resp]
+
+}

@@ -18,12 +18,12 @@ package v2.controllers
 
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.MockIdGenerator
 import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetrieveDividendsRequestDataParser}
 import v2.mocks.services.{MockAuditService, MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
+import v2.models.domain.Nino
 import v2.models.errors._
 import v2.models.outcomes.DesResponse
 import v2.models.requestData._

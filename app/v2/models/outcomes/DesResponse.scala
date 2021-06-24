@@ -16,4 +16,6 @@
 
 package v2.models.outcomes
 
-case class DesResponse[+T](correlationId: String, responseData: T)
+case class DesResponse[+T](correlationId: String, responseData: T) {
+  def map[B](f: T => B): DesResponse[B] = DesResponse(correlationId, f(responseData))
+}

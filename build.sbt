@@ -15,9 +15,8 @@
  */
 
 import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings}
-import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
+import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import uk.gov.hmrc.versioning.SbtGitVersioning
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "mtd-dividends-income"
@@ -25,14 +24,14 @@ val appName = "mtd-dividends-income"
 lazy val ItTest = config("it") extend Test
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
     routesImport := Seq.empty,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test(),
     retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-    scalaVersion := "2.12.10"
+    update / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+    scalaVersion := "2.12.12"
   )
   .settings(majorVersion := 0)
   .settings(publishingSettings: _*)
@@ -41,12 +40,12 @@ lazy val microservice = Project(appName, file("."))
   .configs(ItTest)
   .settings(inConfig(ItTest)(Defaults.itSettings): _*)
   .settings(
-    fork in ItTest := true,
-    unmanagedSourceDirectories in ItTest := Seq((baseDirectory in ItTest).value / "it"),
-    unmanagedClasspath in ItTest += baseDirectory.value / "resources",
-    unmanagedClasspath in Runtime += baseDirectory.value / "resources",
-    javaOptions in ItTest += "-Dlogger.resource=logback-test.xml",
-    parallelExecution in ItTest := false,
+    ItTest / fork := true,
+    ItTest / unmanagedSourceDirectories := Seq((ItTest / baseDirectory).value / "it"),
+    ItTest / unmanagedClasspath += baseDirectory.value / "resources",
+    Runtime / unmanagedClasspath += baseDirectory.value / "resources",
+    ItTest / javaOptions += "-Dlogger.resource=logback-test.xml",
+    ItTest / parallelExecution := false,
     addTestReportOption(ItTest, "int-test-reports")
   )
   .settings(resolvers += Resolver.jcenterRepo)

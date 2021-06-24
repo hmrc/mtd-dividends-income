@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package v2.models.requestData
+package v2
 
-import v2.models.domain.Nino
+import v2.models.errors.DesError
+import v2.models.outcomes.DesResponse
 
+package object connectors {
 
-case class RetrieveDividendsRequest(nino: Nino, desTaxYear: DesTaxYear)
+  type DownstreamOutcome[A] = Either[DesResponse[DesError], DesResponse[A]]
+}

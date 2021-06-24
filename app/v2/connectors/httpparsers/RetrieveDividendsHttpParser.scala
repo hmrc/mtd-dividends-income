@@ -25,9 +25,7 @@ import v2.models.outcomes.{DesResponse, RetrieveDividendsConnectorOutcome}
 
 object RetrieveDividendsHttpParser extends HttpParser {
 
-
-  val logger = Logger(this.getClass)
-
+  override val logger: Logger = Logger(this.getClass)
 
   implicit val retrieveHttpReads: HttpReads[RetrieveDividendsConnectorOutcome] = new HttpReads[RetrieveDividendsConnectorOutcome] {
     override def read(method: String, url: String, response: HttpResponse): RetrieveDividendsConnectorOutcome = {
