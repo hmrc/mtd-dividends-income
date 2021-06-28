@@ -16,9 +16,9 @@
 
 package v2.services
 
-import uk.gov.hmrc.domain.Nino
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.connectors.MockDesConnector
+import v2.models.domain.Nino
 import v2.models.errors._
 import v2.models.outcomes.{AmendDividendsOutcome, DesResponse}
 import v2.models.requestData.{AmendDividendsRequest, DesTaxYear}

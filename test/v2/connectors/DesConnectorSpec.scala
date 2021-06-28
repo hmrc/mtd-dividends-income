@@ -16,10 +16,10 @@
 
 package v2.connectors
 
-import uk.gov.hmrc.domain.Nino
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.{MockAppConfig, MockHttpClient}
 import v2.models.Dividends
+import v2.models.domain.Nino
 import v2.models.errors.{MultipleErrors, NinoFormatError, SingleError, TaxYearFormatError}
 import v2.models.outcomes.{AmendDividendsConnectorOutcome, DesResponse, RetrieveDividendsConnectorOutcome}
 import v2.models.requestData.{AmendDividendsRequest, DesTaxYear, RetrieveDividendsRequest}
@@ -28,16 +28,16 @@ import scala.concurrent.Future
 
 class DesConnectorSpec extends ConnectorSpec {
 
-  lazy val baseUrl = "test-BaseUrl"
-
   trait Test extends MockHttpClient with MockAppConfig {
     val connector = new DesConnector(
       http = mockHttpClient,
       appConfig = mockAppConfig
     )
+    val desRequestHeaders: Seq[(String, String)] = Seq("Environment" -> "des-environment", "Authorization" -> s"Bearer des-token")
     MockedAppConfig.desBaseUrl returns baseUrl
     MockedAppConfig.desToken returns "des-token"
     MockedAppConfig.desEnvironment returns "des-environment"
+    MockedAppConfig.desEnvironmentHeaders returns Some(allowedDesHeaders)
   }
 
 
@@ -51,7 +51,7 @@ class DesConnectorSpec extends ConnectorSpec {
         val expectedResult: DesResponse[String] = DesResponse[String](correlationId, transactionReference)
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
-          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear",
+          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear", dummyDesHeaderCarrierConfig,
           DividendsFixture.dividendsModel)
           .returns(Future.successful(Right(expectedResult)))
 
@@ -68,7 +68,7 @@ class DesConnectorSpec extends ConnectorSpec {
         val taxYear: String = "2018-19"
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
-          s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}",
+          s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}", dummyDesHeaderCarrierConfig,
           DividendsFixture.dividendsModel)
           .returns(Future.successful(Left(expectedDesResponse)))
 
@@ -88,7 +88,7 @@ class DesConnectorSpec extends ConnectorSpec {
         val taxYear: String = "2018-19"
 
         MockedHttpClient.post[Dividends, AmendDividendsConnectorOutcome](
-          s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}",
+          s"$baseUrl/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}", dummyDesHeaderCarrierConfig,
           DividendsFixture.dividendsModel)
           .returns(Future.successful(Left(expectedDesResponse)))
 
@@ -111,7 +111,7 @@ class DesConnectorSpec extends ConnectorSpec {
         val expectedResult: DesResponse[Dividends] = DesResponse(correlationId, DividendsFixture.dividendsModel)
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
-          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear")
+          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/$desTaxYear", dummyDesHeaderCarrierConfig)
           .returns(Future.successful(Right(expectedResult)))
 
         val retrieveDividends: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear(desTaxYear))
@@ -130,7 +130,7 @@ class DesConnectorSpec extends ConnectorSpec {
         val taxYear: String = "1111-12"
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
-          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}")
+          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}", dummyDesHeaderCarrierConfig)
           .returns(Future.successful(Left(expectedDesResponse)))
 
         val retrieveDividends: RetrieveDividendsRequest = RetrieveDividendsRequest(Nino(nino), DesTaxYear.fromMtd(taxYear))
@@ -148,7 +148,7 @@ class DesConnectorSpec extends ConnectorSpec {
         val taxYear: String = "1111-12"
 
         MockedHttpClient.get[RetrieveDividendsConnectorOutcome](
-          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}")
+          s"$baseUrl" + s"/income-tax/nino/$nino/income-source/dividends/annual/${DesTaxYear.fromMtd(taxYear)}", dummyDesHeaderCarrierConfig)
           .returns(Future.successful(Left(expectedDesResponse)))
 
 

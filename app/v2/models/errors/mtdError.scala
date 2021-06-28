@@ -27,4 +27,6 @@ object MtdError {
     (__ \ "code").read[String] and
       (__ \ "reason").read[String]
     ) (MtdError.apply _)
+  implicit def genericWrites[T <: MtdError]: Writes[T] =
+    writes.contramap[T](c => c: MtdError)
 }

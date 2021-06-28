@@ -19,7 +19,6 @@ package v2.connectors
 import javax.inject.Inject
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.HttpClient
 import v2.config.AppConfig
 import v2.models.Dividends
@@ -32,9 +31,19 @@ class DesConnector @Inject()(http: HttpClient, appConfig: AppConfig) {
 
   val logger: Logger = Logger(this.getClass)
 
-  private[connectors] def desHeaderCarrier(implicit hc: HeaderCarrier, correlationId: String): HeaderCarrier = hc
-    .copy(authorization = Some(Authorization(s"Bearer ${appConfig.desToken}")))
-    .withExtraHeaders("Environment" -> appConfig.desEnv, "CorrelationId" -> correlationId)
+  private def desHeaderCarrier(additionalHeaders: Seq[String] = Seq.empty)(implicit hc: HeaderCarrier, correlationId: String): HeaderCarrier = {
+    HeaderCarrier(
+      extraHeaders = hc.extraHeaders ++
+        // Contract headers
+        Seq(
+          "Authorization" -> s"Bearer ${appConfig.desToken}",
+          "Environment" -> appConfig.desEnv,
+          "CorrelationId" -> correlationId
+        ) ++
+        // Other headers (i.e Gov-Test-Scenario, Content-Type)
+        hc.headers(additionalHeaders ++ appConfig.desEnvironmentHeaders.getOrElse(Seq.empty))
+    )
+  }
 
   def amend(amendDividendsRequest: AmendDividendsRequest)(
     implicit hc: HeaderCarrier,
@@ -49,7 +58,7 @@ class DesConnector @Inject()(http: HttpClient, appConfig: AppConfig) {
 
     val url = s"${appConfig.desBaseUrl}/income-tax/nino/$nino/income-source/dividends/annual/$taxYear"
 
-    http.POST[Dividends, AmendDividendsConnectorOutcome](url, amendDividendsRequest.model)(writes, amendHttpReads, desHeaderCarrier, implicitly)
+    http.POST[Dividends, AmendDividendsConnectorOutcome](url, amendDividendsRequest.model)(writes, amendHttpReads, desHeaderCarrier(Seq("Content-Type")), implicitly)
   }
 
   def retrieve(retrieveDividendsRequest: RetrieveDividendsRequest)(
@@ -63,7 +72,7 @@ class DesConnector @Inject()(http: HttpClient, appConfig: AppConfig) {
 
 
     val url = s"${appConfig.desBaseUrl}/income-tax/nino/$nino/income-source/dividends/annual/$taxYear"
-    http.GET[RetrieveDividendsConnectorOutcome](url) (retrieveHttpReads, desHeaderCarrier, implicitly)
 
+    http.GET[RetrieveDividendsConnectorOutcome](url) (retrieveHttpReads, desHeaderCarrier(), implicitly)
   }
 }

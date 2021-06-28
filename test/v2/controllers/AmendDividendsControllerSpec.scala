@@ -20,7 +20,6 @@ import org.scalatest.OneInstancePerTest
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, Result}
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import v2.fixtures.Fixtures.DividendsFixture
 import v2.mocks.MockIdGenerator
@@ -28,6 +27,7 @@ import v2.mocks.requestParsers.{MockAmendDividendsRequestDataParser, MockRetriev
 import v2.mocks.services.{MockAuditService, MockDividendsService, MockEnrolmentsAuthService, MockMtdIdLookupService}
 import v2.models.Dividends
 import v2.models.audit._
+import v2.models.domain.Nino
 import v2.models.errors._
 import v2.models.outcomes.DesResponse
 import v2.models.requestData.{AmendDividendsRequest, AmendDividendsRequestRawData, DesTaxYear}
